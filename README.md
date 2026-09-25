@@ -64,9 +64,9 @@ npm run build    # typecheck + production build to dist/
 
 Pushes to `main` trigger `.github/workflows/deploy.yml`, which builds and
 publishes to GitHub Pages at
-`https://jjbedoya0406-create.github.io/property-tracker/`.
+`https://jjbedoya0406-create.github.io/propertytracker/`.
 
-One-time setup in the GitHub repo (after `git push` to a `jjbedoya0406-create/property-tracker`
+One-time setup in the GitHub repo (after `git push` to a `jjbedoya0406-create/propertytracker`
 remote — not yet created as of this scaffold):
 
 1. **Settings → Pages → Source** → `GitHub Actions`

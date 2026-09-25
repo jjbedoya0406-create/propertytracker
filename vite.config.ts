@@ -6,9 +6,9 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // GitHub Pages serves this as a project site at
-// https://jjbedoya0406-create.github.io/property-tracker/, so the build needs
+// https://jjbedoya0406-create.github.io/propertytracker/, so the build needs
 // that subpath baked into asset URLs. Local dev keeps serving from root.
-const REPO_BASE = "/property-tracker/";
+const REPO_BASE = "/propertytracker/";
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
@@ -38,7 +38,7 @@ export default defineConfig(({ command }) => ({
         display: "standalone",
         // Relative (no leading slash) so vite-plugin-pwa resolves these
         // against `base` — a leading slash would point at the domain root
-        // instead of the /property-tracker/ subpath.
+        // instead of the /propertytracker/ subpath.
         start_url: "./",
         icons: [
           { src: "icon-192.png", sizes: "192x192", type: "image/png" },

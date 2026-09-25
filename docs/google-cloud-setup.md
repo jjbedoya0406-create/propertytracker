@@ -44,7 +44,7 @@ In **APIs & Services → Credentials → Create Credentials → OAuth client ID*
 - Authorized JavaScript origins — add both:
   - `http://localhost:5173` (local dev)
   - `https://jjbedoya0406-create.github.io` (production — note: just the
-    origin, no path; the app itself lives at the `/property-tracker/` path
+    origin, no path; the app itself lives at the `/propertytracker/` path
     under that origin, but GIS only checks the origin)
 - No redirect URIs are needed for the token-client flow this app uses.
 
