@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { AlertCircle, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Plus,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,12 +27,13 @@ import { SummarySection } from "../features/summary/SummarySection";
 
 type SectionKey = "summary" | "dashboard" | "units" | "details";
 
-// Summary open, everything else collapsed — same convention as unit
-// pages (issue #4).
+// Summary and Units open by default, Dashboard/Building details
+// collapsed — Units starts expanded (unlike the unit-page convention)
+// since seeing which units exist is usually the point of landing here.
 const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
   summary: true,
   dashboard: false,
-  units: false,
+  units: true,
   details: false,
 };
 
@@ -134,14 +141,9 @@ export function BuildingInfoPage() {
             isExpanded={expandedSections.summary}
             onToggleExpanded={() => toggleSection("summary")}
           />
-          <DashboardSection
-            scope={scope}
-            isExpanded={expandedSections.dashboard}
-            onToggleExpanded={() => toggleSection("dashboard")}
-          />
 
           <CollapsibleSectionCard
-            title={t("buildings.unitsTitle")}
+            title={`${t("buildings.unitsTitle")} (${units.length})`}
             hint={units.map((unit) => unit.name).join(", ")}
             isExpanded={expandedSections.units}
             onToggle={() => toggleSection("units")}
@@ -171,16 +173,23 @@ export function BuildingInfoPage() {
                   onCancel={() => setShowAddUnitForm(false)}
                 />
               ) : (
-                <Button
-                  variant="outline"
-                  className="self-start"
+                <button
+                  type="button"
+                  className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary"
                   onClick={() => setShowAddUnitForm(true)}
                 >
+                  <Plus className="size-4" />
                   {t("buildings.addUnitButton")}
-                </Button>
+                </button>
               )}
             </div>
           </CollapsibleSectionCard>
+
+          <DashboardSection
+            scope={scope}
+            isExpanded={expandedSections.dashboard}
+            onToggleExpanded={() => toggleSection("dashboard")}
+          />
 
           <CollapsibleSectionCard
             title={t("buildings.detailsTitle")}
