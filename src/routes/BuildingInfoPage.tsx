@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
 import { AddUnitForm } from "../features/buildings/AddUnitForm";
-import { useAddUnitToBuilding, useBuildings } from "../features/buildings/hooks";
+import { EditBuildingForm } from "../features/buildings/EditBuildingForm";
+import {
+  useAddUnitToBuilding,
+  useBuildings,
+  useUpdateBuilding,
+} from "../features/buildings/hooks";
 import { DashboardSection } from "../features/dashboard/DashboardSection";
 import type { FinancialScope } from "../features/properties/financialScope";
 import { useProperties } from "../features/properties/hooks";
@@ -35,7 +41,9 @@ export function BuildingInfoPage() {
   const { data: properties, isPending, isError, error } = useProperties();
   const { data: buildings } = useBuildings();
   const addUnit = useAddUnitToBuilding();
+  const updateBuilding = useUpdateBuilding();
   const [showAddUnitForm, setShowAddUnitForm] = useState(false);
+  const [showEditBuildingForm, setShowEditBuildingForm] = useState(false);
   const [expandedSections, setExpandedSections] =
     useState<Record<SectionKey, boolean>>(DEFAULT_EXPANDED);
 
@@ -90,7 +98,36 @@ export function BuildingInfoPage() {
 
       {building && isReady && (
         <>
-          <h1 className="text-xl font-medium">{building.name}</h1>
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-xl font-medium">{building.name}</h1>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("common.edit")}
+              onClick={() => setShowEditBuildingForm(true)}
+            >
+              <Pencil className="size-4" />
+            </Button>
+          </div>
+
+          {showEditBuildingForm && (
+            <Card>
+              <CardContent>
+                <EditBuildingForm
+                  initialName={building.name}
+                  initialAddress={building.address}
+                  isSubmitting={updateBuilding.isPending}
+                  onSubmit={(input) => {
+                    updateBuilding.mutate(
+                      { ...building, ...input },
+                      { onSuccess: () => setShowEditBuildingForm(false) },
+                    );
+                  }}
+                  onCancel={() => setShowEditBuildingForm(false)}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           <SummarySection
             scope={scope}

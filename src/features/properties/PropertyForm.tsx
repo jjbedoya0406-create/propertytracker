@@ -13,6 +13,11 @@ interface PropertyFormProps {
   isSubmitting?: boolean;
   onSubmit: (input: PropertyInput) => void;
   onCancel?: () => void;
+  // A unit that belongs to a building reads its address from the building
+  // instead (issue #20 — the two used to drift independently), so its own
+  // address field is redundant and misleading to edit here. Standalone
+  // properties keep the field.
+  showAddressField?: boolean;
 }
 
 export function PropertyForm({
@@ -21,6 +26,7 @@ export function PropertyForm({
   isSubmitting,
   onSubmit,
   onCancel,
+  showAddressField = true,
 }: PropertyFormProps) {
   const { t } = useTranslation();
   const [name, setName] = useState(initialValues?.name ?? "");
@@ -48,16 +54,18 @@ export function PropertyForm({
           onChange={(event) => setName(event.target.value)}
         />
       </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="property-address">
-          {t("propertyForm.addressLabel")}
-        </Label>
-        <Input
-          id="property-address"
-          value={address}
-          onChange={(event) => setAddress(event.target.value)}
-        />
-      </div>
+      {showAddressField && (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="property-address">
+            {t("propertyForm.addressLabel")}
+          </Label>
+          <Input
+            id="property-address"
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
+          />
+        </div>
+      )}
 
       {error && (
         <Alert variant="destructive">

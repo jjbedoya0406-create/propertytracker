@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
 import { BuildingSection } from "../features/buildings/BuildingSection";
 import { PromotePropertyForm } from "../features/buildings/PromotePropertyForm";
-import { RenameBuildingForm } from "../features/buildings/RenameBuildingForm";
+import { EditBuildingForm } from "../features/buildings/EditBuildingForm";
 import {
   useBuildings,
   usePromotePropertyToBuilding,
@@ -57,7 +57,7 @@ export function PropertyDetailPage() {
   const createIncome = useCreateIncome();
   const [isEditing, setIsEditing] = useState(false);
   const [showAddUnitForm, setShowAddUnitForm] = useState(false);
-  const [showRenameBuildingForm, setShowRenameBuildingForm] = useState(false);
+  const [showEditBuildingForm, setShowEditBuildingForm] = useState(false);
   const [showQuickLogIncome, setShowQuickLogIncome] = useState(false);
   const [expandedSections, setExpandedSections] =
     useState<Record<SectionKey, boolean>>(DEFAULT_EXPANDED);
@@ -190,25 +190,26 @@ export function PropertyDetailPage() {
               variant="ghost"
               size="icon-sm"
               aria-label={t("common.edit")}
-              onClick={() => setShowRenameBuildingForm(true)}
+              onClick={() => setShowEditBuildingForm(true)}
             >
               <Pencil className="size-4" />
             </Button>
           </div>
 
-          {showRenameBuildingForm && (
+          {showEditBuildingForm && (
             <Card>
               <CardContent>
-                <RenameBuildingForm
+                <EditBuildingForm
                   initialName={building.name}
+                  initialAddress={building.address}
                   isSubmitting={updateBuilding.isPending}
-                  onSubmit={(name) => {
+                  onSubmit={(input) => {
                     updateBuilding.mutate(
-                      { ...building, name },
-                      { onSuccess: () => setShowRenameBuildingForm(false) },
+                      { ...building, ...input },
+                      { onSuccess: () => setShowEditBuildingForm(false) },
                     );
                   }}
-                  onCancel={() => setShowRenameBuildingForm(false)}
+                  onCancel={() => setShowEditBuildingForm(false)}
                 />
               </CardContent>
             </Card>
@@ -229,10 +230,16 @@ export function PropertyDetailPage() {
                   type="button"
                   onClick={() => setSelectedUnitId(unit.propertyId)}
                   className={cn(
-                    "min-h-11 rounded-lg border-[0.5px] px-2 py-2 text-center text-sm font-medium break-words",
+                    "min-h-11 rounded-lg px-2 py-2 text-center text-sm font-medium break-words",
                     isSelected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-transparent text-foreground",
+                      ? "border border-primary bg-primary text-primary-foreground"
+                      : // Issue #16 originally used a 0.5px border here, which
+                        // read as plain text rather than a tappable tab
+                        // (issue #18) — a full 1px border, matching every
+                        // other outline-style control in the app
+                        // (buttonVariants' "outline" variant), reads as
+                        // clearly interactive instead.
+                        "border border-border bg-background text-foreground hover:bg-muted",
                   )}
                 >
                   {unit.name}
@@ -256,6 +263,10 @@ export function PropertyDetailPage() {
                 }}
                 submitLabel={t("common.saveChanges")}
                 isSubmitting={updateProperty.isPending}
+                // A unit belonging to a building reads its address from
+                // the building instead of its own copy (issue #20) — no
+                // point editing a field nothing displays.
+                showAddressField={!building}
                 onSubmit={(input) => {
                   updateProperty.mutate(
                     {
@@ -275,9 +286,13 @@ export function PropertyDetailPage() {
                     <h1 className="text-xl font-medium">
                       {activeProperty.name}
                     </h1>
-                    {activeProperty.address && (
+                    {/* Prefers the building's address over this unit's
+                        own copy (issue #20) — the two used to drift
+                        independently since promotion only ever snapshot
+                        a copy once, at promotion time. */}
+                    {(building?.address ?? activeProperty.address) && (
                       <p className="text-muted-foreground">
-                        {activeProperty.address}
+                        {building?.address ?? activeProperty.address}
                       </p>
                     )}
                   </div>
@@ -439,16 +454,19 @@ export function PropertyDetailPage() {
               </Card>
             ) : (
               <div className="flex gap-2">
+                {/* Issue #19: expense-logging is a routine action, not a
+                    destructive one — filled green (matching "Log building
+                    expense" on the Building Info screen), with income as
+                    the outlined/secondary action instead. Reverses #4's
+                    original red treatment for expense. */}
                 <Button
+                  variant="outline"
                   className="flex-1 shadow-lg"
                   onClick={() => setShowQuickLogIncome(true)}
                 >
                   {t("property.logIncomeQuickAction")}
                 </Button>
-                <Button
-                  asChild
-                  className="flex-1 shadow-lg bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
+                <Button asChild className="flex-1 shadow-lg">
                   <Link
                     to={`/capture?propertyId=${activeProperty.propertyId}`}
                   >

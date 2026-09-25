@@ -6,21 +6,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "../../i18n/useTranslation";
 
-interface RenameBuildingFormProps {
+export interface EditBuildingInput {
+  name: string;
+  address?: string;
+}
+
+interface EditBuildingFormProps {
   initialName: string;
+  initialAddress?: string;
   isSubmitting?: boolean;
-  onSubmit: (name: string) => void;
+  onSubmit: (input: EditBuildingInput) => void;
   onCancel: () => void;
 }
 
-export function RenameBuildingForm({
+// Edits both name and address together (issue #20 added address —
+// previously this only renamed) — units belonging to this building read
+// its address rather than storing their own copy, so this is the one
+// place a building's address gets corrected.
+export function EditBuildingForm({
   initialName,
+  initialAddress,
   isSubmitting,
   onSubmit,
   onCancel,
-}: RenameBuildingFormProps) {
+}: EditBuildingFormProps) {
   const { t } = useTranslation();
   const [name, setName] = useState(initialName);
+  const [address, setAddress] = useState(initialAddress ?? "");
   const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(event: FormEvent) {
@@ -31,7 +43,7 @@ export function RenameBuildingForm({
       return;
     }
     setError(null);
-    onSubmit(trimmed);
+    onSubmit({ name: trimmed, address: address.trim() || undefined });
   }
 
   return (
@@ -44,6 +56,15 @@ export function RenameBuildingForm({
           id="building-name"
           value={name}
           onChange={(event) => setName(event.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="building-address">{t("buildings.addressLabel")}</Label>
+        <Input
+          id="building-address"
+          value={address}
+          onChange={(event) => setAddress(event.target.value)}
         />
       </div>
 
