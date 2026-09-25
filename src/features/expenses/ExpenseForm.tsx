@@ -67,6 +67,17 @@ export function ExpenseForm({
   const [scope, setScope] = useState<"unit" | "building">("unit");
   const [photo, setPhoto] = useState<Blob | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  // The raw File, kept separately from `photo` purely for the attachment
+  // card's display (name/type/size) — `photo` itself may end up being a
+  // plain normalized Blob for camera captures (see handleCapture), which
+  // loses the original filename.
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  // Which input produced the current attachment — needed so the receipt
+  // gets tagged source: "ocr" only when OCR actually ran (issue #17: an
+  // uploaded file never runs OCR, per that issue's Non-Goals).
+  const [attachmentSource, setAttachmentSource] = useState<
+    "camera" | "upload" | null
+  >(null);
   const [isRunningOcr, setIsRunningOcr] = useState(false);
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
@@ -111,6 +122,8 @@ export function ExpenseForm({
 
   async function handleCapture(file: File) {
     setIsRunningOcr(true);
+    setAttachedFile(file);
+    setAttachmentSource("camera");
 
     // Phone photos carry EXIF rotation + very high resolution, which can
     // make Tesseract read a sideways image and produce garbage text even
@@ -147,6 +160,29 @@ export function ExpenseForm({
     }
   }
 
+  // Upload path (issue #17) — deliberately skips normalizeImageForOcr and
+  // recognizeReceiptText entirely, per that issue's Non-Goal: uploaded
+  // files never get OCR/auto-fill, manual entry only. The raw file is
+  // both the display source and the upload payload — PDFs get no preview
+  // URL (the card shows a file-type icon instead, see ReceiptCaptureInput).
+  function handleUpload(file: File) {
+    setAttachedFile(file);
+    setAttachmentSource("upload");
+    setPhoto(file);
+    setPhotoPreviewUrl(
+      file.type.startsWith("image/") && file.type !== "image/heic"
+        ? URL.createObjectURL(file)
+        : null,
+    );
+  }
+
+  function handleRemoveAttachment() {
+    setAttachedFile(null);
+    setAttachmentSource(null);
+    setPhoto(null);
+    setPhotoPreviewUrl(null);
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
@@ -175,7 +211,12 @@ export function ExpenseForm({
       }
       setFormError(null);
       createExpense.mutate(
-        { ...result.data, target: { scope: "building", building: targetBuilding }, photo },
+        {
+          ...result.data,
+          target: { scope: "building", building: targetBuilding },
+          photo,
+          attachmentSource,
+        },
         {
           onSuccess: (expense) =>
             onSaved({ buildingId: targetBuilding.buildingId }, expense.expenseId),
@@ -225,7 +266,7 @@ export function ExpenseForm({
         ? ({ scope: "building", building } as const)
         : ({ scope: "unit", property } as const);
     createExpense.mutate(
-      { ...rest, target, photo },
+      { ...rest, target, photo, attachmentSource },
       {
         onSuccess: (expense) =>
           onSaved({ propertyId: property.propertyId }, expense.expenseId),
@@ -316,14 +357,14 @@ export function ExpenseForm({
       )}
 
       <div className="flex flex-col gap-2">
-        <ReceiptCaptureInput onCapture={handleCapture} disabled={isBusy} />
-        {photoPreviewUrl && (
-          <img
-            src={photoPreviewUrl}
-            alt={t("expenseForm.receiptPreviewAlt")}
-            className="max-h-48 rounded-lg border border-border object-contain"
-          />
-        )}
+        <ReceiptCaptureInput
+          file={attachedFile}
+          previewUrl={photoPreviewUrl}
+          onCapture={handleCapture}
+          onUpload={handleUpload}
+          onRemove={handleRemoveAttachment}
+          disabled={isBusy}
+        />
         {isRunningOcr && (
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />

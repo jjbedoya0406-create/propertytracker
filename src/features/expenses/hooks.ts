@@ -11,6 +11,7 @@ import { updateProperty } from "../../data/properties";
 import { createPropertyFolder, uploadReceiptImage } from "../../data/receipts";
 import { useSpreadsheetId } from "../../portfolio/context";
 import type { Building, Expense, Property } from "../../types";
+import { extensionForMimeType } from "./attachment";
 
 // Single shared cache entry for the whole portfolio's expenses — Sheets has
 // no server-side filter-by-column, so every consumer fetches the same full
@@ -86,6 +87,10 @@ interface CreateExpenseWithReceiptInput {
   categoryId: string;
   notes?: string;
   photo: Blob | null;
+  // Which capture path produced `photo` — an uploaded file never runs OCR
+  // (issue #17's Non-Goal), so this decides the record's `source` below
+  // rather than assuming any attached photo means OCR ran.
+  attachmentSource: "camera" | "upload" | null;
 }
 
 export function useCreateExpenseWithReceipt() {
@@ -105,7 +110,7 @@ export function useCreateExpenseWithReceipt() {
         receiptDriveUrl = await uploadReceiptImage(
           accessToken,
           input.photo,
-          `${input.date}-${crypto.randomUUID()}`,
+          `${input.date}-${crypto.randomUUID()}${extensionForMimeType(input.photo.type)}`,
           folderId,
         );
       }
@@ -124,7 +129,7 @@ export function useCreateExpenseWithReceipt() {
         categoryId: input.categoryId,
         notes: input.notes,
         receiptDriveUrl,
-        source: input.photo ? "ocr" : "manual",
+        source: input.attachmentSource === "camera" ? "ocr" : "manual",
       });
     },
     onSuccess: () => {

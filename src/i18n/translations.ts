@@ -134,12 +134,19 @@ const en = {
   "expenses.rowActions": "Expense actions",
   "expenses.deletedMessage": "Expense deleted",
 
-  "capture.title": "Capture Receipt",
+  "capture.title": "Add receipt or invoice",
 
   "expenseForm.propertyLabel": "Property",
   "expenseForm.propertyPlaceholder": "Select a property…",
   "expenseForm.buildingLabel": "Building",
-  "expenseForm.takePhotoButton": "Take photo of receipt",
+  "expenseForm.takePhotoButton": "Take photo",
+  "expenseForm.uploadFileButton": "Upload file",
+  "expenseForm.attachmentHelperText": "PDF, JPG, PNG, or HEIC",
+  "expenseForm.replaceAttachment": "Replace",
+  "expenseForm.removeAttachment": "Remove attachment",
+  "expenseForm.unsupportedFileType":
+    "That file type isn't supported. Use PDF, JPG, PNG, or HEIC.",
+  "expenseForm.fileTooLarge": "That file is too large. The limit is {max} MB.",
   "expenseForm.receiptPreviewAlt": "Receipt preview",
   "expenseForm.readingReceipt": "Reading receipt…",
   "expenseForm.scopeLabel": "This expense is for",
@@ -385,12 +392,19 @@ const es: Record<TranslationKey, string> = {
   "expenses.rowActions": "Acciones del gasto",
   "expenses.deletedMessage": "Gasto eliminado",
 
-  "capture.title": "Capturar Recibo",
+  "capture.title": "Agregar recibo o factura",
 
   "expenseForm.propertyLabel": "Propiedad",
   "expenseForm.propertyPlaceholder": "Selecciona una propiedad…",
   "expenseForm.buildingLabel": "Edificio",
-  "expenseForm.takePhotoButton": "Tomar foto del recibo",
+  "expenseForm.takePhotoButton": "Tomar foto",
+  "expenseForm.uploadFileButton": "Subir archivo",
+  "expenseForm.attachmentHelperText": "PDF, JPG, PNG o HEIC",
+  "expenseForm.replaceAttachment": "Reemplazar",
+  "expenseForm.removeAttachment": "Quitar archivo adjunto",
+  "expenseForm.unsupportedFileType":
+    "Ese tipo de archivo no es compatible. Usa PDF, JPG, PNG o HEIC.",
+  "expenseForm.fileTooLarge": "El archivo es demasiado grande. El límite es {max} MB.",
   "expenseForm.receiptPreviewAlt": "Vista previa del recibo",
   "expenseForm.readingReceipt": "Leyendo recibo…",
   "expenseForm.scopeLabel": "Este gasto es para",
