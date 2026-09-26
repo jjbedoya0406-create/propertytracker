@@ -99,6 +99,10 @@ const en = {
   "property.backLink": "My properties",
   "property.loadError": "Failed to load property.",
   "property.logIncomeQuickAction": "Log income",
+  "property.archiveUnitButton": "Archive unit",
+  "property.archiveUnitConfirmTitle": "Archive {name}?",
+  "property.archiveUnitConfirmBody":
+    "Its history stays in your records. You can restore it later.",
 
   "buildings.addUnitButton": "Add unit",
   "buildings.promoteExplanation":
@@ -357,6 +361,10 @@ const es: Record<TranslationKey, string> = {
   "property.backLink": "Mis propiedades",
   "property.loadError": "No se pudo cargar la propiedad.",
   "property.logIncomeQuickAction": "Registrar pago",
+  "property.archiveUnitButton": "Archivar unidad",
+  "property.archiveUnitConfirmTitle": "¿Archivar {name}?",
+  "property.archiveUnitConfirmBody":
+    "Su historial permanece en tus registros. Podrás restaurarla más tarde.",
 
   "buildings.addUnitButton": "Agregar unidad",
   "buildings.promoteExplanation":

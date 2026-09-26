@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { AlertCircle, Building2, ChevronLeft } from "lucide-react";
+import { AlertCircle, Building2, ChevronLeft, Pencil } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -238,6 +238,20 @@ export function PropertyDetailPage() {
                   );
                 }}
                 onCancel={() => setIsEditing(false)}
+                // Archiving a unit moved into the edit view (issue #21)
+                // — a standalone property still archives from its own
+                // button row below, unchanged.
+                onArchive={
+                  building
+                    ? () => {
+                        setPropertyStatus.mutate(
+                          { property: activeProperty, status: "archived" },
+                          { onSuccess: () => setIsEditing(false) },
+                        );
+                      }
+                    : undefined
+                }
+                isArchiving={setPropertyStatus.isPending}
               />
             ) : (
               <div className="flex flex-col gap-3">
@@ -270,58 +284,75 @@ export function PropertyDetailPage() {
                         {t("common.archived")}
                       </Badge>
                     )}
+                    {/* A unit gets a pencil icon, matching the building
+                        screen (issue #21) — Edit/Archive as separate
+                        buttons moved into the edit view itself. A
+                        standalone property keeps its own button row
+                        below, unchanged. */}
+                    {building && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={t("common.edit")}
+                        onClick={() => setIsEditing(true)}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    {t("common.edit")}
-                  </Button>
-                  {activeProperty.status === "active" ? (
+                {!building && (
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={setPropertyStatus.isPending}
-                      onClick={() =>
-                        setPropertyStatus.mutate({
-                          property: activeProperty,
-                          status: "archived",
-                        })
-                      }
+                      onClick={() => setIsEditing(true)}
                     >
-                      {t("common.archive")}
+                      {t("common.edit")}
                     </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={setPropertyStatus.isPending}
-                      onClick={() =>
-                        setPropertyStatus.mutate({
-                          property: activeProperty,
-                          status: "active",
-                        })
-                      }
-                    >
-                      {t("common.unarchive")}
-                    </Button>
-                  )}
-                  {/* Only offered for a standalone property — once
-                      promoted, adding further units happens from the
-                      Building tab instead. */}
-                  {!activeProperty.buildingId && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowAddUnitForm(true)}
-                    >
-                      {t("buildings.addUnitButton")}
-                    </Button>
-                  )}
-                </div>
+                    {activeProperty.status === "active" ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={setPropertyStatus.isPending}
+                        onClick={() =>
+                          setPropertyStatus.mutate({
+                            property: activeProperty,
+                            status: "archived",
+                          })
+                        }
+                      >
+                        {t("common.archive")}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={setPropertyStatus.isPending}
+                        onClick={() =>
+                          setPropertyStatus.mutate({
+                            property: activeProperty,
+                            status: "active",
+                          })
+                        }
+                      >
+                        {t("common.unarchive")}
+                      </Button>
+                    )}
+                    {/* Only offered for a standalone property — once
+                        promoted, adding further units happens from the
+                        Building tab instead. */}
+                    {!activeProperty.buildingId && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddUnitForm(true)}
+                      >
+                        {t("buildings.addUnitButton")}
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
