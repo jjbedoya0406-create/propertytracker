@@ -12,6 +12,7 @@ import {
   Layout,
   PropertiesListPage,
   PropertyDetailPage,
+  RecurringExpenseFormPage,
   SettingsPage,
   SignInPage,
 } from "./routes";
@@ -58,6 +59,14 @@ function App() {
                 <Route
                   path="buildings/:buildingId"
                   element={<BuildingInfoPage />}
+                />
+                <Route
+                  path="buildings/:buildingId/recurring/new"
+                  element={<RecurringExpenseFormPage />}
+                />
+                <Route
+                  path="buildings/:buildingId/recurring/:recurringExpenseId"
+                  element={<RecurringExpenseFormPage />}
                 />
                 <Route path="capture" element={<CapturePage />} />
                 <Route path="categories" element={<CategoriesListPage />} />

@@ -7,3 +7,4 @@ export * from "./tenancy";
 export * from "./building";
 export * from "./connectedPortfolio";
 export * from "./closedYear";
+export * from "./recurringExpense";

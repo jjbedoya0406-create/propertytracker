@@ -84,6 +84,21 @@ const CONNECTED_PORTFOLIOS_HEADER = [
 // issue #10: portfolio-wide, not per-property — closing 2025 locks 2025
 // across every property/unit in whichever spreadsheet this lives in.
 const CLOSED_YEARS_HEADER = ["year", "closed_at"];
+// issue #24: building-level only (v1) — no property_id. anchor_day is
+// kept separate from next_due_date so a day like the 31st survives being
+// clamped for a shorter month (see lib/recurringExpenseDates.ts).
+const RECURRING_EXPENSES_HEADER = [
+  "recurring_expense_id",
+  "building_id",
+  "name",
+  "amount",
+  "category_id",
+  "frequency",
+  "next_due_date",
+  "anchor_day",
+  "status",
+  "created_at",
+];
 const EXPENSES_COLUMN_COUNT = EXPENSES_HEADER.length;
 const EXPENSES_CATEGORY_COLUMN_INDEX = EXPENSES_HEADER.indexOf("category");
 const EXPENSES_NOTES_COLUMN_INDEX = EXPENSES_HEADER.indexOf("notes");
@@ -129,6 +144,7 @@ export async function ensurePortfolioSpreadsheet(
     ensureConnectedPortfoliosTab(accessToken, spreadsheetId),
     ensureIncomeEditedAtColumn(accessToken, spreadsheetId),
     ensureClosedYearsTab(accessToken, spreadsheetId),
+    ensureRecurringExpensesTab(accessToken, spreadsheetId),
   ]);
 
   return spreadsheetId;
@@ -343,6 +359,21 @@ async function ensureClosedYearsTab(
   await addSheet(accessToken, spreadsheetId, "ClosedYears");
   await updateValues(accessToken, spreadsheetId, "ClosedYears!A1:B1", [
     CLOSED_YEARS_HEADER,
+  ]);
+}
+
+// issue #24: building-level recurring bills (HOA, pest control, etc).
+async function ensureRecurringExpensesTab(
+  accessToken: string,
+  spreadsheetId: string,
+): Promise<void> {
+  const titles = await getSheetTitles(accessToken, spreadsheetId);
+  if (titles.includes("Recurring")) {
+    return;
+  }
+  await addSheet(accessToken, spreadsheetId, "Recurring");
+  await updateValues(accessToken, spreadsheetId, "Recurring!A1:J1", [
+    RECURRING_EXPENSES_HEADER,
   ]);
 }
 

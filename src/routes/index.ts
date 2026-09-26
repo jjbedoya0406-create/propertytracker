@@ -3,6 +3,7 @@ export { SignInPage } from "./SignInPage";
 export { PropertiesListPage } from "./PropertiesListPage";
 export { PropertyDetailPage } from "./PropertyDetailPage";
 export { BuildingInfoPage } from "./BuildingInfoPage";
+export { RecurringExpenseFormPage } from "./RecurringExpenseFormPage";
 export { CapturePage } from "./CapturePage";
 export { CategoriesListPage } from "./CategoriesListPage";
 export { SettingsPage } from "./SettingsPage";

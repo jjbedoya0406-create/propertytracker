@@ -427,7 +427,7 @@ export function PropertyDetailPage() {
           toolbar rather than buttons floating loose over whatever
           content is scrolled beneath them. Sits flush against
           BottomTabBar (bottom-[55px] = its real measured height, not
-          guessed) — UndoBanner is repositioned to stack above this bar
+          guessed) — Toast is repositioned to stack above this bar
           instead of overlapping it, since the two always coexist on
           this page. Truly `fixed` to the viewport (not just trailing
           the last card) — nothing between this and Layout's <main> sets

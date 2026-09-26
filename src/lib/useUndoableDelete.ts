@@ -13,7 +13,7 @@ interface UseUndoableDeleteOptions<T> {
 // a timer. Undo cancels the timer and puts the row back; letting the
 // window expire fires the actual Sheets delete. Only one delete is ever
 // in flight per hook instance, which is all either screen needs (see
-// UndoBanner — a single fixed banner, not a queue).
+// Toast — a single fixed banner, not a queue).
 export function useUndoableDelete<T>({
   queryKey,
   getId,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   AlertCircle,
   Building2,
@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
+import { Toast } from "@/components/Toast";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
 import { AddUnitForm } from "../features/buildings/AddUnitForm";
@@ -25,20 +26,25 @@ import { DashboardSection } from "../features/dashboard/DashboardSection";
 import type { FinancialScope } from "../features/properties/financialScope";
 import { PeriodPickerSheet } from "../features/properties/PeriodPickerSheet";
 import { useProperties } from "../features/properties/hooks";
+import { DueCard } from "../features/recurringExpenses/DueCard";
+import { RecurringExpensesSection } from "../features/recurringExpenses/RecurringExpensesSection";
+import { useRecurringExpenses } from "../features/recurringExpenses/hooks";
 import { formatPeriodLabel } from "../lib/period";
 import { usePeriod } from "../portfolio/PeriodContext";
 import { useSettings } from "../portfolio/context";
 import { SummarySection } from "../features/summary/SummarySection";
 
-type SectionKey = "summary" | "dashboard" | "units";
+type SectionKey = "summary" | "dashboard" | "units" | "recurring";
 
-// Summary and Units open by default, Dashboard collapsed — Units starts
-// expanded (unlike the unit-page convention) since seeing which units
-// exist is usually the point of landing here.
+// Summary, Units, and Recurring expenses open by default, Dashboard
+// collapsed — Units/Recurring start expanded (unlike the unit-page
+// convention) since seeing what exists is usually the point of landing
+// here.
 const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
   summary: true,
   dashboard: false,
   units: true,
+  recurring: true,
 };
 
 // Dedicated building-wide screen (issue #14) — reached only from My
@@ -51,14 +57,22 @@ export function BuildingInfoPage() {
   const { language } = useSettings();
   const { buildingId } = useParams<{ buildingId: string }>();
   const { period } = usePeriod();
+  const location = useLocation();
   const { data: properties, isPending, isError, error } = useProperties();
   const { data: buildings } = useBuildings();
+  const { data: recurringExpenses } = useRecurringExpenses();
   const addUnit = useAddUnitToBuilding();
   const updateBuilding = useUpdateBuilding();
   const [showAddUnitForm, setShowAddUnitForm] = useState(false);
   const [showEditBuildingForm, setShowEditBuildingForm] = useState(false);
   const [expandedSections, setExpandedSections] =
     useState<Record<SectionKey, boolean>>(DEFAULT_EXPANDED);
+  // Set by RecurringExpenseFormPage on save/pause/resume/end (issue #24)
+  // — mirrors the existing justLoggedExpenseId navigation-state pattern
+  // (CapturePage -> ExpensesSection).
+  const toastMessage = (
+    location.state as { toastMessage?: string } | null
+  )?.toastMessage;
 
   function toggleSection(key: SectionKey) {
     setExpandedSections((current) => ({ ...current, [key]: !current[key] }));
@@ -78,6 +92,9 @@ export function BuildingInfoPage() {
     buildingId,
     unitPropertyIds: units.map((unit) => unit.propertyId),
   };
+  const buildingRecurringExpenses = (recurringExpenses ?? []).filter(
+    (item) => item.buildingId === buildingId,
+  );
 
   return (
     // Same 36px derivation as PropertyDetailPage.tsx: the full 132px
@@ -145,6 +162,11 @@ export function BuildingInfoPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Between the header card and Summary (issue #24, FR4) —
+              always uses real "today", ignores the period picker
+              entirely (AC9), and renders nothing when nothing is due. */}
+          <DueCard building={building} items={buildingRecurringExpenses} />
 
           {showEditBuildingForm && (
             <Card>
@@ -220,6 +242,13 @@ export function BuildingInfoPage() {
             </div>
           </CollapsibleSectionCard>
 
+          <RecurringExpensesSection
+            buildingId={buildingId}
+            items={buildingRecurringExpenses}
+            isExpanded={expandedSections.recurring}
+            onToggleExpanded={() => toggleSection("recurring")}
+          />
+
           <DashboardSection
             scope={scope}
             period={period}
@@ -241,6 +270,8 @@ export function BuildingInfoPage() {
               </Button>
             </div>
           </div>
+
+          {toastMessage && <Toast message={toastMessage} />}
         </>
       )}
     </div>

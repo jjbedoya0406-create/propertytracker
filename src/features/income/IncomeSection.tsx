@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UndoBanner } from "@/components/UndoBanner";
+import { Toast } from "@/components/Toast";
 import { queryKeys } from "@/api/queryKeys";
 import { formatCurrency } from "@/lib/currency";
 import { isYearClosed } from "@/lib/closedYears";
@@ -234,7 +234,7 @@ export function IncomeSection({
       </div>
     </CollapsibleSectionCard>
     {undoableDelete.pendingItem && (
-      <UndoBanner
+      <Toast
         message={t("income.deletedMessage")}
         onUndo={undoableDelete.undo}
       />

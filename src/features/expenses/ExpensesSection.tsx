@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoggedStamp } from "@/components/LoggedStamp";
-import { UndoBanner } from "@/components/UndoBanner";
+import { Toast } from "@/components/Toast";
 import { queryKeys } from "@/api/queryKeys";
 import { formatCurrency } from "@/lib/currency";
 import { isYearClosed } from "@/lib/closedYears";
@@ -240,7 +240,7 @@ export function ExpensesSection({
       </div>
     </CollapsibleSectionCard>
     {undoableDelete.pendingItem && (
-      <UndoBanner
+      <Toast
         message={t("expenses.deletedMessage")}
         onUndo={undoableDelete.undo}
       />

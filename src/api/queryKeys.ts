@@ -39,4 +39,8 @@ export const queryKeys = {
     all: ["closedYears"] as const,
     list: () => ["closedYears", "list"] as const,
   },
+  recurringExpenses: {
+    all: ["recurringExpenses"] as const,
+    list: () => ["recurringExpenses", "list"] as const,
+  },
 };
