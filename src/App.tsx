@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { AuthProvider, ProtectedRoute } from "./auth";
 import { BottomTabBar } from "./components/BottomTabBar";
 import { queryClient } from "./queryClient";
+import { PeriodProvider } from "./portfolio/PeriodContext";
 import { RequirePortfolio } from "./portfolio/RequirePortfolio";
 import {
   BuildingInfoPage,
@@ -24,9 +25,15 @@ function PortfolioLayout() {
             than in the outer Layout — which sits outside this provider
             and would crash on mount (e.g. right after sign-in, before
             settings resolve). */}
-        <div className="flex flex-1 flex-col pb-24">
-          <Outlet />
-        </div>
+        {/* Session-wide period (issue #22) — mounted above the routed
+            pages so it survives navigating between a building and its
+            units, or between properties, without persisting to storage
+            (resets to the current month on an actual reload). */}
+        <PeriodProvider>
+          <div className="flex flex-1 flex-col pb-24">
+            <Outlet />
+          </div>
+        </PeriodProvider>
         <BottomTabBar />
       </RequirePortfolio>
     </ProtectedRoute>

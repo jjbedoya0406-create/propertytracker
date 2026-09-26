@@ -114,6 +114,7 @@ const en = {
   "buildings.noSharedBillsYet":
     "No shared bills logged yet — log one above to get started.",
   "buildings.unitsTitle": "Units",
+  "buildings.showingPeriod": "Showing {period}",
   "buildings.detailsTitle": "Building details",
   "buildings.addressLabel": "Address",
   "buildings.noAddress": "No address on file",
@@ -200,15 +201,22 @@ const en = {
   "tenancyForm.savingButton": "Saving…",
 
   "summary.title": "Summary",
-  "summary.yearLabel": "Year",
   "summary.income": "Income",
   "summary.expenses": "Expenses",
+  "summary.buildingExpenses": "Building",
+  "summary.unitExpenses": "Units",
+  "summary.net": "Net",
+
+  "period.pickerLabel": "Choose period",
+  "period.sheetTitle": "Choose period",
+  "period.previousYear": "Previous year",
+  "period.nextYear": "Next year",
+  "period.allOfYear": "All of {year}",
 
   "dashboard.title": "Dashboard",
-  "dashboard.monthLabel": "Month",
   "dashboard.otherCategory": "Other",
-  "dashboard.topCategoryHint": "Top category: {name} — {percent}%",
-  "dashboard.emptyHint": "No expenses this month",
+  "dashboard.topCategoryHint": "Top category in {period}: {name} — {percent}%",
+  "dashboard.emptyHint": "No activity in {period}",
   "dashboard.backToDashboard": "Back to Dashboard",
 
   "categories.title": "Categories",
@@ -371,6 +379,7 @@ const es: Record<TranslationKey, string> = {
   "buildings.noSharedBillsYet":
     "Aún no hay cuentas compartidas registradas — registra una arriba para empezar.",
   "buildings.unitsTitle": "Unidades",
+  "buildings.showingPeriod": "Mostrando {period}",
   "buildings.detailsTitle": "Detalles del edificio",
   "buildings.addressLabel": "Dirección",
   "buildings.noAddress": "Sin dirección registrada",
@@ -458,15 +467,22 @@ const es: Record<TranslationKey, string> = {
   "tenancyForm.savingButton": "Guardando…",
 
   "summary.title": "Resumen",
-  "summary.yearLabel": "Año",
   "summary.income": "Ingresos",
   "summary.expenses": "Gastos",
+  "summary.buildingExpenses": "Edificio",
+  "summary.unitExpenses": "Unidades",
+  "summary.net": "Neto",
+
+  "period.pickerLabel": "Elegir período",
+  "period.sheetTitle": "Elegir período",
+  "period.previousYear": "Año anterior",
+  "period.nextYear": "Año siguiente",
+  "period.allOfYear": "Todo {year}",
 
   "dashboard.title": "Panel",
-  "dashboard.monthLabel": "Mes",
   "dashboard.otherCategory": "Otros",
-  "dashboard.topCategoryHint": "Categoría principal: {name} — {percent}%",
-  "dashboard.emptyHint": "No hay gastos este mes",
+  "dashboard.topCategoryHint": "Categoría principal en {period}: {name} — {percent}%",
+  "dashboard.emptyHint": "Sin actividad en {period}",
   "dashboard.backToDashboard": "Volver al panel",
 
   "categories.title": "Categorías",

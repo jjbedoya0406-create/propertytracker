@@ -1,16 +1,8 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatCurrency } from "@/lib/currency";
-import { formatMonthLabel } from "@/lib/monthLabel";
+import { formatPeriodLabel, periodToPrefix, type Period } from "@/lib/period";
 import { useTranslation } from "../../i18n/useTranslation";
 import { useSettings } from "../../portfolio/context";
 import { useCategories } from "../categories/hooks";
@@ -20,12 +12,14 @@ import { CATEGORY_CHART_COLORS, DonutChart } from "./DonutChart";
 
 interface DashboardSectionProps {
   scope: FinancialScope;
+  period: Period;
   isExpanded: boolean;
   onToggleExpanded: () => void;
 }
 
 export function DashboardSection({
   scope,
+  period,
   isExpanded,
   onToggleExpanded,
 }: DashboardSectionProps) {
@@ -34,26 +28,21 @@ export function DashboardSection({
   const { data: expenses } = useScopedExpenses(scope);
   const { data: categories } = useCategories();
 
-  const currentMonth = useMemo(() => new Date().toISOString().slice(0, 7), []);
-  const [month, setMonth] = useState(currentMonth);
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | "other" | null
   >(null);
 
-  const months = useMemo(() => {
-    const withData = new Set((expenses ?? []).map((e) => e.date.slice(0, 7)));
-    withData.add(currentMonth);
-    return Array.from(withData).sort().reverse();
-  }, [expenses, currentMonth]);
+  const prefix = periodToPrefix(period);
+  const periodLabel = formatPeriodLabel(period, language);
 
   const monthExpenses = useMemo(
-    () => (expenses ?? []).filter((e) => e.date.startsWith(month)),
-    [expenses, month],
+    () => (expenses ?? []).filter((e) => e.date.startsWith(prefix)),
+    [expenses, prefix],
   );
 
   const breakdown = useMemo(
-    () => computeCategoryBreakdown(expenses ?? [], month),
-    [expenses, month],
+    () => computeCategoryBreakdown(expenses ?? [], prefix),
+    [expenses, prefix],
   );
 
   const categoryNameById = useMemo(
@@ -77,8 +66,9 @@ export function DashboardSection({
 
   const hint =
     breakdown.length === 0
-      ? t("dashboard.emptyHint")
+      ? t("dashboard.emptyHint", { period: periodLabel })
       : t("dashboard.topCategoryHint", {
+          period: periodLabel,
           name: categoryName(breakdown[0].categoryId),
           percent: String(breakdown[0].percent),
         });
@@ -114,7 +104,7 @@ export function DashboardSection({
           </h3>
           {drillDownTransactions.length === 0 ? (
             <p className="text-muted-foreground">
-              {t("dashboard.emptyHint")}
+              {t("dashboard.emptyHint", { period: periodLabel })}
             </p>
           ) : (
             <div className="divide-y divide-border rounded-lg border">
@@ -143,26 +133,10 @@ export function DashboardSection({
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="dashboard-month">
-              {t("dashboard.monthLabel")}
-            </Label>
-            <Select value={month} onValueChange={setMonth}>
-              <SelectTrigger id="dashboard-month" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {months.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {formatMonthLabel(m, language)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {breakdown.length === 0 ? (
-            <p className="text-muted-foreground">{t("dashboard.emptyHint")}</p>
+            <p className="text-muted-foreground">
+              {t("dashboard.emptyHint", { period: periodLabel })}
+            </p>
           ) : (
             <>
               <div className="flex justify-center">

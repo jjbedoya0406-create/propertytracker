@@ -22,7 +22,11 @@ import {
 } from "../features/buildings/hooks";
 import { DashboardSection } from "../features/dashboard/DashboardSection";
 import type { FinancialScope } from "../features/properties/financialScope";
+import { PeriodPickerSheet } from "../features/properties/PeriodPickerSheet";
 import { useProperties } from "../features/properties/hooks";
+import { formatPeriodLabel } from "../lib/period";
+import { usePeriod } from "../portfolio/PeriodContext";
+import { useSettings } from "../portfolio/context";
 import { SummarySection } from "../features/summary/SummarySection";
 
 type SectionKey = "summary" | "dashboard" | "units" | "details";
@@ -44,7 +48,9 @@ const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
 // exactly as before.
 export function BuildingInfoPage() {
   const { t } = useTranslation();
+  const { language } = useSettings();
   const { buildingId } = useParams<{ buildingId: string }>();
+  const { period } = usePeriod();
   const { data: properties, isPending, isError, error } = useProperties();
   const { data: buildings } = useBuildings();
   const addUnit = useAddUnitToBuilding();
@@ -106,15 +112,20 @@ export function BuildingInfoPage() {
       {building && isReady && (
         <>
           <div className="flex items-center justify-between gap-2">
-            <h1 className="text-xl font-medium">{building.name}</h1>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("common.edit")}
-              onClick={() => setShowEditBuildingForm(true)}
-            >
-              <Pencil className="size-4" />
-            </Button>
+            <h1 className="min-w-0 flex-1 truncate text-xl font-medium">
+              {building.name}
+            </h1>
+            <div className="flex shrink-0 items-center gap-1">
+              <PeriodPickerSheet scope={scope} />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("common.edit")}
+                onClick={() => setShowEditBuildingForm(true)}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            </div>
           </div>
 
           {showEditBuildingForm && (
@@ -138,6 +149,7 @@ export function BuildingInfoPage() {
 
           <SummarySection
             scope={scope}
+            period={period}
             isExpanded={expandedSections.summary}
             onToggleExpanded={() => toggleSection("summary")}
           />
@@ -149,6 +161,11 @@ export function BuildingInfoPage() {
             onToggle={() => toggleSection("units")}
           >
             <div className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                {t("buildings.showingPeriod", {
+                  period: formatPeriodLabel(period, language),
+                })}
+              </p>
               <div className="divide-y divide-border rounded-lg border">
                 {units.map((unit) => (
                   <Link
@@ -187,6 +204,7 @@ export function BuildingInfoPage() {
 
           <DashboardSection
             scope={scope}
+            period={period}
             isExpanded={expandedSections.dashboard}
             onToggleExpanded={() => toggleSection("dashboard")}
           />

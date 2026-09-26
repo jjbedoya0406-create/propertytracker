@@ -21,7 +21,9 @@ import { IncomeForm } from "../features/income/IncomeForm";
 import { IncomeSection } from "../features/income/IncomeSection";
 import { useCreateIncome } from "../features/income/hooks";
 import type { FinancialScope } from "../features/properties/financialScope";
+import { PeriodPickerSheet } from "../features/properties/PeriodPickerSheet";
 import { PropertyForm } from "../features/properties/PropertyForm";
+import { usePeriod } from "../portfolio/PeriodContext";
 import { SummarySection } from "../features/summary/SummarySection";
 import { TenancySection } from "../features/tenancies/TenancySection";
 import {
@@ -55,6 +57,7 @@ export function PropertyDetailPage() {
   const promotePropertyToBuilding = usePromotePropertyToBuilding();
   const updateBuilding = useUpdateBuilding();
   const createIncome = useCreateIncome();
+  const { period } = usePeriod();
   const [isEditing, setIsEditing] = useState(false);
   const [showAddUnitForm, setShowAddUnitForm] = useState(false);
   const [showEditBuildingForm, setShowEditBuildingForm] = useState(false);
@@ -182,18 +185,23 @@ export function PropertyDetailPage() {
             <button
               type="button"
               onClick={() => setSelectedUnitId(null)}
-              className="text-left"
+              className="min-w-0 flex-1 text-left"
             >
-              <h1 className="text-xl font-medium">{building.name}</h1>
+              <h1 className="truncate text-xl font-medium">
+                {building.name}
+              </h1>
             </button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("common.edit")}
-              onClick={() => setShowEditBuildingForm(true)}
-            >
-              <Pencil className="size-4" />
-            </Button>
+            <div className="flex shrink-0 items-center gap-1">
+              {scope && <PeriodPickerSheet scope={scope} />}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("common.edit")}
+                onClick={() => setShowEditBuildingForm(true)}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            </div>
           </div>
 
           {showEditBuildingForm && (
@@ -282,8 +290,8 @@ export function PropertyDetailPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h1 className="text-xl font-medium">
+                  <div className="min-w-0 flex-1">
+                    <h1 className="truncate text-xl font-medium">
                       {activeProperty.name}
                     </h1>
                     {/* Prefers the building's address over this unit's
@@ -296,9 +304,21 @@ export function PropertyDetailPage() {
                       </p>
                     )}
                   </div>
-                  {activeProperty.status === "archived" && (
-                    <Badge variant="secondary">{t("common.archived")}</Badge>
-                  )}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {/* Only for a standalone property — a unit inside a
+                        multi-unit building already has the chip on the
+                        sticky header above, which controls the same
+                        page-wide period; showing it twice would be
+                        redundant. */}
+                    {!isMultiUnit && scope && (
+                      <PeriodPickerSheet scope={scope} />
+                    )}
+                    {activeProperty.status === "archived" && (
+                      <Badge variant="secondary">
+                        {t("common.archived")}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -382,11 +402,13 @@ export function PropertyDetailPage() {
         <>
           <SummarySection
             scope={scope}
+            period={period}
             isExpanded={expandedSections.summary}
             onToggleExpanded={() => toggleSection("summary")}
           />
           <DashboardSection
             scope={scope}
+            period={period}
             isExpanded={expandedSections.dashboard}
             onToggleExpanded={() => toggleSection("dashboard")}
           />
