@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
   AlertCircle,
+  Building2,
   ChevronLeft,
   ChevronRight,
   Pencil,
@@ -29,16 +30,15 @@ import { usePeriod } from "../portfolio/PeriodContext";
 import { useSettings } from "../portfolio/context";
 import { SummarySection } from "../features/summary/SummarySection";
 
-type SectionKey = "summary" | "dashboard" | "units" | "details";
+type SectionKey = "summary" | "dashboard" | "units";
 
-// Summary and Units open by default, Dashboard/Building details
-// collapsed — Units starts expanded (unlike the unit-page convention)
-// since seeing which units exist is usually the point of landing here.
+// Summary and Units open by default, Dashboard collapsed — Units starts
+// expanded (unlike the unit-page convention) since seeing which units
+// exist is usually the point of landing here.
 const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
   summary: true,
   dashboard: false,
   units: true,
-  details: false,
 };
 
 // Dedicated building-wide screen (issue #14) — reached only from My
@@ -111,22 +111,40 @@ export function BuildingInfoPage() {
 
       {building && isReady && (
         <>
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="min-w-0 flex-1 truncate text-xl font-medium">
-              {building.name}
-            </h1>
-            <div className="flex shrink-0 items-center gap-1">
-              <PeriodPickerSheet scope={scope} />
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("common.edit")}
-                onClick={() => setShowEditBuildingForm(true)}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            </div>
-          </div>
+          {/* Card matches Summary/Units (issue #15) — replaces the old
+              bare flex row + separate "Building details" card, which
+              only ever existed to show the address. */}
+          <Card>
+            <CardContent className="flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-start gap-2">
+                  <Building2 className="mt-0.5 size-5 shrink-0 text-foreground" />
+                  {/* line-clamp, never truncate to one line — a long
+                      building name should still be readable. */}
+                  <h1 className="line-clamp-2 text-xl font-medium">
+                    {building.name}
+                  </h1>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="shrink-0"
+                  aria-label={t("common.edit")}
+                  onClick={() => setShowEditBuildingForm(true)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              </div>
+              {/* Only when it actually adds information — many
+                  buildings are named after their own address. */}
+              {building.address && building.address !== building.name && (
+                <p className="text-muted-foreground">{building.address}</p>
+              )}
+              <div>
+                <PeriodPickerSheet scope={scope} />
+              </div>
+            </CardContent>
+          </Card>
 
           {showEditBuildingForm && (
             <Card>
@@ -208,20 +226,6 @@ export function BuildingInfoPage() {
             isExpanded={expandedSections.dashboard}
             onToggleExpanded={() => toggleSection("dashboard")}
           />
-
-          <CollapsibleSectionCard
-            title={t("buildings.detailsTitle")}
-            hint={building.address ?? t("buildings.noAddress")}
-            isExpanded={expandedSections.details}
-            onToggle={() => toggleSection("details")}
-          >
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-muted-foreground">
-                {t("buildings.addressLabel")}
-              </span>
-              <span>{building.address ?? t("buildings.noAddress")}</span>
-            </div>
-          </CollapsibleSectionCard>
 
           {/* Same fixed positioning as unit pages (bottom-[55px] flush
               against BottomTabBar, border-t divider, bg-background) —

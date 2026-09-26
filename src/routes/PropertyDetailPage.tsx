@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { AlertCircle, ChevronLeft, Pencil } from "lucide-react";
+import { AlertCircle, Building2, ChevronLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
-import { BuildingSection } from "../features/buildings/BuildingSection";
 import { PromotePropertyForm } from "../features/buildings/PromotePropertyForm";
-import { EditBuildingForm } from "../features/buildings/EditBuildingForm";
 import {
   useBuildings,
   usePromotePropertyToBuilding,
-  useUpdateBuilding,
 } from "../features/buildings/hooks";
 import { DashboardSection } from "../features/dashboard/DashboardSection";
 import { ExpensesSection } from "../features/expenses/ExpensesSection";
@@ -46,29 +43,24 @@ const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
 
 export function PropertyDetailPage() {
   const { t } = useTranslation();
-  const { propertyId, buildingId } = useParams<{
-    propertyId?: string;
-    buildingId?: string;
-  }>();
+  const { propertyId } = useParams<{ propertyId?: string }>();
   const { data: properties, isPending, isError, error } = useProperties();
   const { data: buildings } = useBuildings();
   const updateProperty = useUpdateProperty();
   const setPropertyStatus = useSetPropertyStatus();
   const promotePropertyToBuilding = usePromotePropertyToBuilding();
-  const updateBuilding = useUpdateBuilding();
   const createIncome = useCreateIncome();
   const { period } = usePeriod();
   const [isEditing, setIsEditing] = useState(false);
   const [showAddUnitForm, setShowAddUnitForm] = useState(false);
-  const [showEditBuildingForm, setShowEditBuildingForm] = useState(false);
   const [showQuickLogIncome, setShowQuickLogIncome] = useState(false);
   const [expandedSections, setExpandedSections] =
     useState<Record<SectionKey, boolean>>(DEFAULT_EXPANDED);
-  // null = the building overview (only reachable via the /buildings/:id
-  // route — the old /properties/:id route always lands directly on that
-  // unit's own tab, unchanged from before this issue).
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(
-    buildingId ? null : (propertyId ?? null),
+  // Which sibling unit's tab is active — always a real unit id (issue
+  // #15 retired the old "null = building overview" mode; the building
+  // name now navigates to the real Building Info screen instead).
+  const [selectedUnitId, setSelectedUnitId] = useState<string | undefined>(
+    propertyId,
   );
 
   function toggleSection(key: SectionKey) {
@@ -79,25 +71,22 @@ export function PropertyDetailPage() {
   // (this route component doesn't remount when the param changes) —
   // reset it so arriving at a different URL lands on the right state.
   useEffect(() => {
-    setSelectedUnitId(buildingId ? null : (propertyId ?? null));
-  }, [propertyId, buildingId]);
+    setSelectedUnitId(propertyId);
+  }, [propertyId]);
 
-  // Landing on a different unit or the overview is a fresh "landing" —
-  // collapsed sections reset the same way every time (issue #4), not
-  // just on the very first mount.
+  // Landing on a different unit is a fresh "landing" — collapsed
+  // sections reset the same way every time (issue #4), not just on the
+  // very first mount.
   useEffect(() => {
     setExpandedSections(DEFAULT_EXPANDED);
     setShowQuickLogIncome(false);
   }, [selectedUnitId]);
 
-  if (!propertyId && !buildingId) {
+  if (!propertyId) {
     return <Navigate to="/properties" replace />;
   }
 
-  const property = propertyId
-    ? properties?.find((p) => p.propertyId === propertyId)
-    : undefined;
-  const resolvedBuildingId = buildingId ?? property?.buildingId;
+  const property = properties?.find((p) => p.propertyId === propertyId);
 
   // Every unit sharing this buildingId. The selector only renders once
   // this is 2+ — a promoted property always has a sibling by construction,
@@ -106,9 +95,9 @@ export function PropertyDetailPage() {
   // so "301, 302, 303, 304" reads in order rather than sheet-insertion
   // order — unit names aren't always pure numbers (e.g. "Jess house"),
   // so this falls back to plain alphabetic comparison for those.
-  const siblings = resolvedBuildingId
+  const siblings = property?.buildingId
     ? (properties ?? [])
-        .filter((p) => p.buildingId === resolvedBuildingId)
+        .filter((p) => p.buildingId === property.buildingId)
         .sort((a, b) =>
           a.name.localeCompare(b.name, undefined, {
             numeric: true,
@@ -118,28 +107,16 @@ export function PropertyDetailPage() {
     : [];
   const isMultiUnit = siblings.length >= 2;
   const building = isMultiUnit
-    ? buildings?.find((b) => b.buildingId === resolvedBuildingId)
+    ? buildings?.find((b) => b.buildingId === property?.buildingId)
     : undefined;
 
   const activeProperty = isMultiUnit
-    ? selectedUnitId
-      ? siblings.find((p) => p.propertyId === selectedUnitId)
-      : undefined
+    ? siblings.find((p) => p.propertyId === selectedUnitId)
     : property;
 
-  // Summary/Dashboard scope to the whole building on the overview
-  // (combining every unit plus the building's own shared bills), or to
-  // just the active unit/standalone property otherwise (issue #4).
-  const scope: FinancialScope | undefined =
-    isMultiUnit && selectedUnitId === null && building
-      ? {
-          kind: "building",
-          buildingId: building.buildingId,
-          unitPropertyIds: siblings.map((unit) => unit.propertyId),
-        }
-      : activeProperty
-        ? { kind: "unit", propertyId: activeProperty.propertyId }
-        : undefined;
+  const scope: FinancialScope | undefined = activeProperty
+    ? { kind: "unit", propertyId: activeProperty.propertyId }
+    : undefined;
 
   return (
     // The full clearance needed is 132px (BottomTabBar's 55px + the
@@ -175,87 +152,62 @@ export function PropertyDetailPage() {
       {!isPending && !isError && propertyId && !property && (
         <Navigate to="/properties" replace />
       )}
-      {!isPending && !isError && buildingId && !isMultiUnit && (
-        <Navigate to="/properties" replace />
-      )}
 
+      {/* Card matches Summary/Units on Building Info (issue #15). The
+          building name links to the real Building Info screen instead
+          of toggling an inline overview (issue #15 retired that mode
+          entirely — see BuildingSection.tsx's removal) — no pencil
+          here, editing the building happens from that screen now. The
+          period carries over automatically (same session-wide
+          usePeriod() context regardless of which screen set it). */}
       {isMultiUnit && building && (
-        <div className="flex flex-col gap-3">
-          <div className="sticky top-0 z-10 -mx-4 flex items-center justify-between gap-2 bg-background px-4 py-2">
-            <button
-              type="button"
-              onClick={() => setSelectedUnitId(null)}
-              className="min-w-0 flex-1 text-left"
+        <Card>
+          <CardContent className="flex flex-col gap-3">
+            <Link
+              to={`/buildings/${building.buildingId}`}
+              className="flex items-start gap-2 text-primary"
             >
-              <h1 className="truncate text-xl font-medium">
+              <Building2 className="mt-0.5 size-5 shrink-0" />
+              <h1 className="line-clamp-2 text-xl font-medium">
                 {building.name}
               </h1>
-            </button>
-            <div className="flex shrink-0 items-center gap-1">
-              {scope && <PeriodPickerSheet scope={scope} />}
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("common.edit")}
-                onClick={() => setShowEditBuildingForm(true)}
-              >
-                <Pencil className="size-4" />
-              </Button>
+            </Link>
+            <div>{scope && <PeriodPickerSheet scope={scope} />}</div>
+            {/* Grid, not a horizontal tab strip (issue #16) — every unit
+                stays visible without a swipe gesture, wrapping to more
+                rows instead of scrolling. Selected/unselected contrast
+                is deliberately stark (solid fill vs. plain border)
+                rather than the previous subtle-background pill
+                treatment, which blended units together once a building
+                had more than a couple of units. */}
+            <div className="grid grid-cols-4 gap-2">
+              {siblings.map((unit) => {
+                const isSelected = selectedUnitId === unit.propertyId;
+                return (
+                  <button
+                    key={unit.propertyId}
+                    type="button"
+                    onClick={() => setSelectedUnitId(unit.propertyId)}
+                    className={cn(
+                      "min-h-11 rounded-lg px-2 py-2 text-center text-sm font-medium break-words",
+                      isSelected
+                        ? "border border-primary bg-primary text-primary-foreground"
+                        : // Issue #16 originally used a 0.5px border here, which
+                          // read as plain text rather than a tappable tab
+                          // (issue #18) — a full 1px border, matching every
+                          // other outline-style control in the app
+                          // (buttonVariants' "outline" variant), reads as
+                          // clearly interactive instead.
+                          "border border-border bg-background text-foreground hover:bg-muted",
+                    )}
+                  >
+                    {unit.name}
+                  </button>
+                );
+              })}
             </div>
-          </div>
-
-          {showEditBuildingForm && (
-            <Card>
-              <CardContent>
-                <EditBuildingForm
-                  initialName={building.name}
-                  initialAddress={building.address}
-                  isSubmitting={updateBuilding.isPending}
-                  onSubmit={(input) => {
-                    updateBuilding.mutate(
-                      { ...building, ...input },
-                      { onSuccess: () => setShowEditBuildingForm(false) },
-                    );
-                  }}
-                  onCancel={() => setShowEditBuildingForm(false)}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Grid, not a horizontal tab strip (issue #16) — every unit stays
-              visible without a swipe gesture, wrapping to more rows instead
-              of scrolling. Selected/unselected contrast is deliberately
-              stark (solid fill vs. plain border) rather than the previous
-              subtle-background pill treatment, which blended units together
-              once a building had more than a couple of units. */}
-          <div className="grid grid-cols-4 gap-2">
-            {siblings.map((unit) => {
-              const isSelected = selectedUnitId === unit.propertyId;
-              return (
-                <button
-                  key={unit.propertyId}
-                  type="button"
-                  onClick={() => setSelectedUnitId(unit.propertyId)}
-                  className={cn(
-                    "min-h-11 rounded-lg px-2 py-2 text-center text-sm font-medium break-words",
-                    isSelected
-                      ? "border border-primary bg-primary text-primary-foreground"
-                      : // Issue #16 originally used a 0.5px border here, which
-                        // read as plain text rather than a tappable tab
-                        // (issue #18) — a full 1px border, matching every
-                        // other outline-style control in the app
-                        // (buttonVariants' "outline" variant), reads as
-                        // clearly interactive instead.
-                        "border border-border bg-background text-foreground hover:bg-muted",
-                  )}
-                >
-                  {unit.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Identity info, not a data section — always first, before any
@@ -413,13 +365,6 @@ export function PropertyDetailPage() {
             onToggleExpanded={() => toggleSection("dashboard")}
           />
         </>
-      )}
-
-      {isMultiUnit && selectedUnitId === null && building && (
-        <BuildingSection
-          building={building}
-          unitPropertyIds={siblings.map((unit) => unit.propertyId)}
-        />
       )}
 
       {activeProperty && (

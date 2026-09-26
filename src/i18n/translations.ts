@@ -108,16 +108,9 @@ const en = {
   "buildings.unitNamePlaceholder": "e.g. 301",
   "buildings.promoteSaveButton": "Save",
   "buildings.promoteSavingButton": "Saving…",
-  "buildings.buildingCosts": "Building costs",
-  "buildings.unitsIncome": "Units income",
-  "buildings.sharedBillsTitle": "Shared bills",
-  "buildings.noSharedBillsYet":
-    "No shared bills logged yet — log one above to get started.",
   "buildings.unitsTitle": "Units",
   "buildings.showingPeriod": "Showing {period}",
-  "buildings.detailsTitle": "Building details",
   "buildings.addressLabel": "Address",
-  "buildings.noAddress": "No address on file",
   "buildings.logExpenseAction": "Log building expense",
 
   "expenses.title": "Expenses",
@@ -373,16 +366,9 @@ const es: Record<TranslationKey, string> = {
   "buildings.unitNamePlaceholder": "ej. 301",
   "buildings.promoteSaveButton": "Guardar",
   "buildings.promoteSavingButton": "Guardando…",
-  "buildings.buildingCosts": "Gastos del edificio",
-  "buildings.unitsIncome": "Ingresos de las unidades",
-  "buildings.sharedBillsTitle": "Cuentas compartidas",
-  "buildings.noSharedBillsYet":
-    "Aún no hay cuentas compartidas registradas — registra una arriba para empezar.",
   "buildings.unitsTitle": "Unidades",
   "buildings.showingPeriod": "Mostrando {period}",
-  "buildings.detailsTitle": "Detalles del edificio",
   "buildings.addressLabel": "Dirección",
-  "buildings.noAddress": "Sin dirección registrada",
   "buildings.logExpenseAction": "Registrar gasto del edificio",
 
   "expenses.title": "Gastos",
