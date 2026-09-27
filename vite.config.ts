@@ -29,12 +29,25 @@ export default defineConfig(({ command }) => ({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
+      // Default globPatterns doesn't include font files — confirmed by
+      // inspecting the built dist/sw.js precache list directly, which
+      // silently omitted every font (issue #25's own explicit
+      // requirement: "include the font files in the service worker
+      // cache"). This was already true for the old Inter font too; not
+      // new to this change, just never verified before now.
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}"],
+      },
       manifest: {
         name: "Property Expense Tracker",
         short_name: "Expense Tracker",
         description: "Capture and track rental property expenses and receipts.",
-        theme_color: "#2F5233",
-        background_color: "#EFF3EC",
+        // Ink design system, issue #25 — matches --ink/--page in
+        // src/index.css. App icon left as-is (out of scope for Phase 1;
+        // still uses the old ledger-green stamp mark, flagged in the
+        // report).
+        theme_color: "#12233A",
+        background_color: "#FFFFFF",
         display: "standalone",
         // Relative (no leading slash) so vite-plugin-pwa resolves these
         // against `base` — a leading slash would point at the domain root

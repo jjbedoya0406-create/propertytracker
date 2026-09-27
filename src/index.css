@@ -1,68 +1,125 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+/* Latin subset only (doc's explicit instruction) — covers English and
+   Spanish, including Spanish's accented vowels/ñ, without pulling in the
+   cyrillic/greek/vietnamese variants @fontsource ships by default, which
+   this two-language app never needs. */
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
 
 /*
- * Ledger design system (Design_System_v0.1.md). Single theme only — no dark
- * mode, per that doc's "Explicitly Not Doing" section, so there's no .dark
- * block here and no @custom-variant dark.
+ * "Ink" design system, Phase 1 (docs/Design_System_v0.2.md — supersedes the
+ * "ledger" system in the deleted Design_System_v0.1.md). This ticket
+ * (issue #25) covers Sections 1-4 and 16 only: color/type/spacing/radius
+ * tokens and PWA colors — no component-file changes, no screen redesigns.
+ * Single theme only, same as before — no dark mode yet (doc's own "Out of
+ * scope for Phase 1" list).
  */
 :root {
-  /* Semantic ledger tokens, as named in the design doc */
-  --bg-ledger: #eff3ec;
-  --surface: #ffffff;
-  --ink: #24302b;
-  --ink-muted: #5b685f;
-  --rule: #d3dcd1;
-  --action: #2f5233;
-  --action-hover: #25401f;
+  /* Section 1: Core */
+  --ink: #12233a;
+  --ink-pressed: #0b1828;
+  --on-ink: #ffffff;
+  --page: #ffffff;
+  --card: #f4f6f9;
+  --line: #e1e6ee;
+  --line-strong: #868fa0;
+  --muted: #627085;
+
+  /* Section 1: Status colors — fill vs. text kept separate per the doc
+     ("the bright colors fail text contrast") — never use the bare
+     mint/red/amber fill tokens for text. */
+  --mint: #10a36e;
+  --mint-text: #0b7a52;
+  --mint-bg: #e3f6ee;
+  --red: #d0452f;
+  --red-text: #b8391f;
+  --red-bg: #fde8e4;
+  --amber: #b7791f;
+  --amber-text: #8f5e12;
+  --amber-bg: #fff8ea;
+  --amber-line: #f0d9a8;
+
+  /* Section 1: States and overlays */
+  --focus: #12233a;
+  --disabled-bg: #e9edf2;
+  --disabled-text: #9aa5b4;
+  --scrim: rgba(18, 35, 58, 0.45);
+  --shadow-sheet: 0 -8px 24px rgba(18, 35, 58, 0.12);
+
+  /* Section 3: Spacing (strict 4px scale) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Section 4: Radius — three discrete values, not a proportional scale */
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --radius-pill: 999px;
+
+  /* The old "LOGGED" ink-stamp signature moment (LoggedStamp.tsx) and the
+     Categories pill color aren't addressed by the Ink doc at all — left
+     exactly as they were, out of scope for this ticket. */
   --stamp: #2b3a55;
-  --error: #a13d2f;
-  /* Category pill (UI_Polish_Handoff_v1.md, screen 3) — distinct from the
-     general --muted/--secondary tokens since it's a specific called-out
-     color pairing, not part of the base ledger palette. */
   --category-pill: #e3e9df;
   --category-pill-foreground: #3c5240;
 
-  /* shadcn/ui's expected token names, mapped onto the ledger palette above
-     so every generated component (button, input, card, ...) inherits it
-     without per-component overrides. */
-  --background: var(--bg-ledger);
+  /* shadcn/ui's expected token names, remapped onto the Ink palette above
+     so every existing component (button, input, card, ...) picks up the
+     new system with no per-component changes — same architecture as
+     before, just new values. */
+  --background: var(--page);
   --foreground: var(--ink);
-  --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover: var(--surface);
+  --popover: var(--page);
   --popover-foreground: var(--ink);
-  --primary: var(--action);
-  --primary-foreground: #ffffff;
-  --secondary: var(--rule);
-  --secondary-foreground: var(--ink);
-  --muted: var(--rule);
-  --muted-foreground: var(--ink-muted);
-  --accent: var(--rule);
+  --primary: var(--ink);
+  --primary-foreground: var(--on-ink);
+  /* --secondary/--secondary-foreground is only ever consumed by Badge in
+     this app today (never Button's own "secondary" variant) — mapped for
+     Badge's "Paused/neutral" rule (doc section 10: page bg, muted text,
+     line-strong border) rather than the doc's separate Secondary-*button*
+     spec (section 8: ink text), since that's what's actually rendered.
+     If a secondary Button variant is ever added, revisit this — the doc
+     wants ink text there, not muted. */
+  --secondary: var(--page);
+  --secondary-foreground: var(--muted);
+  /* shadcn's --muted/--muted-foreground pair means "muted background" /
+     "muted text" — the doc's own `muted` token (#627085) is text-only, so
+     it maps to -foreground here; the background half points at `card`
+     directly in the @theme block below rather than reusing the name
+     `--muted` twice for two different colors. */
+  --muted-foreground: var(--muted);
+  --accent: var(--card);
   --accent-foreground: var(--ink);
-  --destructive: var(--error);
-  --destructive-foreground: #ffffff;
-  --border: var(--rule);
-  --input: var(--rule);
-  --ring: var(--action);
-
-  /* 12px, per "Cards: soft rounded corners (border-radius: 12px)" */
-  --radius: 0.75rem;
+  --destructive: var(--red);
+  --destructive-foreground: var(--on-ink);
+  /* Decorative dividers only (doc: "line ... dividers ... decorative
+     only") — control borders use --input below instead. */
+  --border: var(--line);
+  /* Input/button/control borders (doc: "line-strong ... borders of
+     inputs, secondary buttons, and other controls") — kept distinct from
+     --border/--line, which is dividers only. */
+  --input: var(--line-strong);
+  --ring: var(--focus);
 
   font-family:
-    "Inter Variable",
-    system-ui,
+    "IBM Plex Sans",
     -apple-system,
     "Segoe UI",
+    Roboto,
     sans-serif;
   color-scheme: light;
 }
 
 @theme inline {
   --font-sans:
-    "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+    "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -73,7 +130,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
+  /* Background half of the muted pair — the doc's own `muted` token is
+     text-only (#627085), so the background uses `card` directly instead
+     of reusing that name for a second, different color. */
+  --color-muted: var(--card);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
@@ -85,10 +145,14 @@
   --color-stamp: var(--stamp);
   --color-category-pill: var(--category-pill);
   --color-category-pill-foreground: var(--category-pill-foreground);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  /* Card uses rounded-xl, Button/Input/Select use rounded-lg (and a
+     clamped rounded-md at smaller sizes) — mapped directly onto the
+     doc's two discrete control/card values instead of a proportional
+     scale, so Card is exactly 16px and everything else is exactly 12px. */
+  --radius-sm: var(--radius-control);
+  --radius-md: var(--radius-control);
+  --radius-lg: var(--radius-control);
+  --radius-xl: var(--radius-card);
 }
 
 body {
