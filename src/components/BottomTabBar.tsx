@@ -23,8 +23,11 @@ import { usePortfolioSwitcher } from "../portfolio/context";
 // stay one tap away always; everything else (Categories today, Income and
 // Occupancy later) lives in the "More" sheet instead of growing the tab
 // bar or the old header-link pattern this replaces.
+// Section 12: 24px icons, secondary-size labels, 44px minimum hit area
+// (already met via min-h-11). Active = ink (text-primary), inactive =
+// muted — unchanged from before, already matched the spec.
 const tabItemClass =
-  "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium";
+  "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-caption font-medium";
 
 export function BottomTabBar() {
   const { t } = useTranslation();
@@ -62,7 +65,7 @@ export function BottomTabBar() {
   }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-page">
       <div className="mx-auto flex max-w-2xl">
         <Link
           to="/properties"
@@ -71,7 +74,7 @@ export function BottomTabBar() {
             isProperties ? "text-primary" : "text-muted-foreground",
           )}
         >
-          <Home className="size-5" />
+          <Home className="size-6" />
           {t("nav.properties")}
         </Link>
         <Link
@@ -81,7 +84,7 @@ export function BottomTabBar() {
             isCapture ? "text-primary" : "text-muted-foreground",
           )}
         >
-          <Camera className="size-5" />
+          <Camera className="size-6" />
           {t("nav.capture")}
         </Link>
         <Sheet
@@ -96,7 +99,7 @@ export function BottomTabBar() {
               type="button"
               className={cn(tabItemClass, "text-muted-foreground")}
             >
-              <Menu className="size-5" />
+              <Menu className="size-6" />
               {t("nav.more")}
             </button>
           </SheetTrigger>

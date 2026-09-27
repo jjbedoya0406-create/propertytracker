@@ -3,6 +3,14 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AlertCircle, Archive, ChevronLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -52,9 +60,7 @@ export function RecurringExpenseFormPage() {
 
   const isPending = buildingsPending || categoriesPending || recurringPending;
   if (isPending) {
-    return (
-      <p className="text-muted-foreground">{t("common.loading")}</p>
-    );
+    return <p className="text-muted-foreground">{t("common.loading")}</p>;
   }
 
   const building = buildings?.find((b) => b.buildingId === buildingId);
@@ -99,9 +105,7 @@ function RecurringExpenseFormFields({
   const updateMutation = useUpdateRecurringExpense();
 
   const [name, setName] = useState(existing?.name ?? "");
-  const [amount, setAmount] = useState(
-    existing ? String(existing.amount) : "",
-  );
+  const [amount, setAmount] = useState(existing ? String(existing.amount) : "");
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? "");
   const [frequency, setFrequency] = useState<RecurringExpenseFrequency>(
     existing?.frequency ?? "monthly",
@@ -127,7 +131,8 @@ function RecurringExpenseFormFields({
     // ("Add a name, amount to save.") — these labels are normally
     // capitalized field headings, not sentence fragments.
     const missing: string[] = [];
-    if (!name.trim()) missing.push(t("recurringExpense.nameLabel").toLowerCase());
+    if (!name.trim())
+      missing.push(t("recurringExpense.nameLabel").toLowerCase());
     if (!amount.trim() || !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       missing.push(t("recurringExpense.amountLabel").toLowerCase());
     }
@@ -366,7 +371,7 @@ function RecurringExpenseFormFields({
           {t("common.saveChanges")}
         </Button>
 
-        {existing && !showEndConfirm && (
+        {existing && (
           <>
             <div className="border-t border-border" />
             <div className="flex gap-2">
@@ -383,8 +388,8 @@ function RecurringExpenseFormFields({
               </Button>
               <Button
                 type="button"
-                variant="outline"
-                className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+                variant="destructive-secondary"
+                className="flex-1"
                 disabled={isSaving}
                 onClick={() => setShowEndConfirm(true)}
               >
@@ -395,38 +400,41 @@ function RecurringExpenseFormFields({
           </>
         )}
 
-        {existing && showEndConfirm && (
-          <div className="flex flex-col gap-3 rounded-lg border border-destructive p-4">
-            <div className="flex flex-col gap-1">
-              <p className="font-medium">
-                {t("recurringExpense.endConfirmTitle", {
-                  name: existing.name,
-                })}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {t("recurringExpense.endConfirmBody")}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                disabled={isSaving}
-                onClick={() => setShowEndConfirm(false)}
-              >
-                {t("common.cancel")}
-              </Button>
-              <Button
-                type="button"
-                className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                disabled={isSaving}
-                onClick={handleEnd}
-              >
-                {t("recurringExpense.endButton")}
-              </Button>
-            </div>
-          </div>
+        {existing && (
+          <Dialog open={showEndConfirm} onOpenChange={setShowEndConfirm}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {t("recurringExpense.endConfirmTitle", {
+                    name: existing.name,
+                  })}
+                </DialogTitle>
+                <DialogDescription>
+                  {t("recurringExpense.endConfirmBody")}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isSaving}
+                  onClick={() => setShowEndConfirm(false)}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="flex-1"
+                  disabled={isSaving}
+                  onClick={handleEnd}
+                >
+                  {t("recurringExpense.endButton")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
       </form>
     </div>

@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoggedStamp } from "@/components/LoggedStamp";
-import { Toast } from "@/components/Toast";
 import { queryKeys } from "@/api/queryKeys";
 import { formatCurrency } from "@/lib/currency";
 import { isYearClosed } from "@/lib/closedYears";
@@ -51,6 +50,7 @@ export function ExpensesSection({
     queryKey: queryKeys.expenses.all,
     getId: (expense) => expense.expenseId,
     onCommit: (expense) => deleteExpenseMutation.mutateAsync(expense.expenseId),
+    message: t("expenses.deletedMessage"),
   });
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -85,166 +85,168 @@ export function ExpensesSection({
 
   return (
     <>
-    <CollapsibleSectionCard
-      title={t("expenses.title")}
-      hint={`${t("expenses.totalAllTime")} ${formatCurrency(runningTotal, currency)}`}
-      isExpanded={isExpanded}
-      onToggle={onToggleExpanded}
-    >
-      <div className="flex flex-col gap-4">
-        <p className="tabular-nums">
-          <span className="text-muted-foreground">{t("expenses.total")}</span>{" "}
-          <span className="font-medium">
-            {formatCurrency(runningTotal, currency)}
-          </span>
-        </p>
-        <Button asChild className="self-start">
-          <Link to={`/capture?propertyId=${propertyId}`}>
-            {t("expenses.logButton")}
-          </Link>
-        </Button>
+      <CollapsibleSectionCard
+        title={t("expenses.title")}
+        hint={`${t("expenses.totalAllTime")} ${formatCurrency(runningTotal, currency)}`}
+        isExpanded={isExpanded}
+        onToggle={onToggleExpanded}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="tabular-nums">
+            <span className="text-muted-foreground">{t("expenses.total")}</span>{" "}
+            <span className="font-medium">
+              {formatCurrency(runningTotal, currency)}
+            </span>
+          </p>
+          <Button asChild className="self-start">
+            <Link to={`/capture?propertyId=${propertyId}`}>
+              {t("expenses.logButton")}
+            </Link>
+          </Button>
 
-        {isPending && (
-          <p className="text-muted-foreground">{t("expenses.loading")}</p>
-        )}
-        {isError && (
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertDescription>
-              {error instanceof Error ? error.message : t("expenses.loadError")}
-            </AlertDescription>
-          </Alert>
-        )}
+          {isPending && (
+            <p className="text-muted-foreground">{t("expenses.loading")}</p>
+          )}
+          {isError && (
+            <Alert variant="destructive">
+              <AlertCircle />
+              <AlertDescription>
+                {error instanceof Error
+                  ? error.message
+                  : t("expenses.loadError")}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {!isPending && !isError && (
-          <>
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="expenses-from">{t("expenses.fromLabel")}</Label>
-                <Input
-                  id="expenses-from"
-                  type="date"
-                  value={fromDate}
-                  onChange={(event) => setFromDate(event.target.value)}
-                />
+          {!isPending && !isError && (
+            <>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="expenses-from">
+                    {t("expenses.fromLabel")}
+                  </Label>
+                  <Input
+                    id="expenses-from"
+                    type="date"
+                    value={fromDate}
+                    onChange={(event) => setFromDate(event.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="expenses-to">{t("expenses.toLabel")}</Label>
+                  <Input
+                    id="expenses-to"
+                    type="date"
+                    value={toDate}
+                    onChange={(event) => setToDate(event.target.value)}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="expenses-to">{t("expenses.toLabel")}</Label>
-                <Input
-                  id="expenses-to"
-                  type="date"
-                  value={toDate}
-                  onChange={(event) => setToDate(event.target.value)}
-                />
-              </div>
-            </div>
 
-            {filtered.length === 0 ? (
-              <p className="text-muted-foreground">
-                {(expenses ?? []).length === 0
-                  ? t("expenses.emptyNoneYet")
-                  : t("expenses.emptyNoneInRange")}
-              </p>
-            ) : (
-              <div className="divide-y divide-border rounded-lg border">
-                {filtered.map((expense) =>
-                  editingId === expense.expenseId ? (
-                    <div key={expense.expenseId} className="px-4 py-3">
-                      <ExpenseEditForm
-                        expense={expense}
-                        categories={categories ?? []}
-                        isSubmitting={updateExpense.isPending}
-                        onSubmit={(input) => {
-                          updateExpense.mutate(
-                            { ...expense, ...input },
-                            { onSuccess: () => setEditingId(null) },
-                          );
-                        }}
-                        onCancel={() => setEditingId(null)}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      key={expense.expenseId}
-                      className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
-                    >
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium">
-                          {categoryNameById.get(expense.categoryId) ??
-                            t("expenses.unknownCategory")}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {expense.date}
-                        </span>
-                        {expense.notes && (
-                          <span className="text-sm text-muted-foreground">
-                            {expense.notes}
+              {filtered.length === 0 ? (
+                <p className="text-muted-foreground">
+                  {(expenses ?? []).length === 0
+                    ? t("expenses.emptyNoneYet")
+                    : t("expenses.emptyNoneInRange")}
+                </p>
+              ) : (
+                <div className="divide-y divide-border rounded-lg border">
+                  {filtered.map((expense) =>
+                    editingId === expense.expenseId ? (
+                      <div key={expense.expenseId} className="px-4 py-3">
+                        <ExpenseEditForm
+                          expense={expense}
+                          categories={categories ?? []}
+                          isSubmitting={updateExpense.isPending}
+                          onSubmit={(input) => {
+                            updateExpense.mutate(
+                              { ...expense, ...input },
+                              { onSuccess: () => setEditingId(null) },
+                            );
+                          }}
+                          onCancel={() => setEditingId(null)}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        key={expense.expenseId}
+                        className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+                      >
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">
+                            {categoryNameById.get(expense.categoryId) ??
+                              t("expenses.unknownCategory")}
                           </span>
-                        )}
+                          <span className="text-sm text-muted-foreground">
+                            {expense.date}
+                          </span>
+                          {expense.notes && (
+                            <span className="text-sm text-muted-foreground">
+                              {expense.notes}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {expense.expenseId === justLoggedExpenseId && (
+                            <LoggedStamp />
+                          )}
+                          <span className="tabular-nums font-medium">
+                            {formatCurrency(expense.amount, currency)}
+                          </span>
+                          {expense.receiptDriveUrl && (
+                            <Button asChild variant="ghost" size="icon-sm">
+                              <a
+                                href={expense.receiptDriveUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={t("expenses.viewReceipt")}
+                              >
+                                <ExternalLink className="size-4" />
+                              </a>
+                            </Button>
+                          )}
+                          {isYearClosed(closedYears ?? [], expense.date) ? (
+                            <Badge variant="paused">{t("common.closed")}</Badge>
+                          ) : (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label={t("expenses.rowActions")}
+                                >
+                                  <MoreVertical className="size-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <DropdownMenuItem
+                                  onSelect={() =>
+                                    setEditingId(expense.expenseId)
+                                  }
+                                >
+                                  {t("common.edit")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onSelect={() =>
+                                    undoableDelete.remove(expense)
+                                  }
+                                >
+                                  {t("common.delete")}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {expense.expenseId === justLoggedExpenseId && (
-                          <LoggedStamp />
-                        )}
-                        <span className="tabular-nums font-medium">
-                          {formatCurrency(expense.amount, currency)}
-                        </span>
-                        {expense.receiptDriveUrl && (
-                          <Button asChild variant="ghost" size="icon-sm">
-                            <a
-                              href={expense.receiptDriveUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-label={t("expenses.viewReceipt")}
-                            >
-                              <ExternalLink className="size-4" />
-                            </a>
-                          </Button>
-                        )}
-                        {isYearClosed(closedYears ?? [], expense.date) ? (
-                          <Badge variant="paused">{t("common.closed")}</Badge>
-                        ) : (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label={t("expenses.rowActions")}
-                              >
-                                <MoreVertical className="size-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem
-                                onSelect={() => setEditingId(expense.expenseId)}
-                              >
-                                {t("common.edit")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onSelect={() => undoableDelete.remove(expense)}
-                              >
-                                {t("common.delete")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                      </div>
-                    </div>
-                  ),
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </CollapsibleSectionCard>
-    {undoableDelete.pendingItem && (
-      <Toast
-        message={t("expenses.deletedMessage")}
-        onUndo={undoableDelete.undo}
-      />
-    )}
+                    ),
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </CollapsibleSectionCard>
     </>
   );
 }

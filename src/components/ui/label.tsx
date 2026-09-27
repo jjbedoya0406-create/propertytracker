@@ -13,7 +13,7 @@ function Label({
       className={cn(
         // Section 7: label is "secondary" size (13/18), muted, weight 400 —
         // not the bold, full-body-size label browsers default to.
-        "flex items-center gap-2 text-secondary font-normal text-muted-foreground select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        "flex items-center gap-2 text-caption font-normal text-muted-foreground select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
         className,
       )}
       {...props}

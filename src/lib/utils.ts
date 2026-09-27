@@ -19,7 +19,7 @@ const twMerge = extendTailwindMerge({
         "section",
         "body-strong",
         "body",
-        "secondary",
+        "caption",
         "label",
       ],
     },

@@ -18,7 +18,11 @@ import {
 import { useTranslation } from "../../i18n/useTranslation";
 import { useSettings } from "../../portfolio/context";
 import { usePeriod } from "../../portfolio/PeriodContext";
-import { useScopedExpenses, useScopedIncome, type FinancialScope } from "./financialScope";
+import {
+  useScopedExpenses,
+  useScopedIncome,
+  type FinancialScope,
+} from "./financialScope";
 
 interface PeriodPickerSheetProps {
   scope: FinancialScope;
@@ -68,7 +72,7 @@ export function PeriodPickerSheet({ scope }: PeriodPickerSheetProps) {
         <button
           type="button"
           aria-label={t("period.pickerLabel")}
-          className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium"
+          className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg bg-card px-3 text-body font-medium text-ink"
         >
           <Calendar className="size-4" />
           {formatPeriodLabel(period, language)}
@@ -104,7 +108,12 @@ export function PeriodPickerSheet({ scope }: PeriodPickerSheetProps) {
             </Button>
           </div>
 
-          <Button type="button" variant="outline" className="w-full" onClick={selectYear}>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={selectYear}
+          >
             {t("period.allOfYear", { year: String(viewingYear) })}
           </Button>
 

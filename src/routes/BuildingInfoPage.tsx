@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   AlertCircle,
@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
-import { Toast } from "@/components/Toast";
+import { useToast } from "@/components/ToastContext";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
 import { AddUnitForm } from "../features/buildings/AddUnitForm";
@@ -58,6 +58,7 @@ export function BuildingInfoPage() {
   const { buildingId } = useParams<{ buildingId: string }>();
   const { period } = usePeriod();
   const location = useLocation();
+  const { showToast, dismissToast } = useToast();
   const { data: properties, isPending, isError, error } = useProperties();
   const { data: buildings } = useBuildings();
   const { data: recurringExpenses } = useRecurringExpenses();
@@ -69,10 +70,17 @@ export function BuildingInfoPage() {
     useState<Record<SectionKey, boolean>>(DEFAULT_EXPANDED);
   // Set by RecurringExpenseFormPage on save/pause/resume/end (issue #24)
   // — mirrors the existing justLoggedExpenseId navigation-state pattern
-  // (CapturePage -> ExpensesSection).
-  const toastMessage = (
-    location.state as { toastMessage?: string } | null
-  )?.toastMessage;
+  // (CapturePage -> ExpensesSection). Raised through the global toast slot
+  // (issue #27) rather than rendered locally, and dismissed on unmount so
+  // navigating away clears it exactly as the old locally-rendered version
+  // did.
+  const toastMessage = (location.state as { toastMessage?: string } | null)
+    ?.toastMessage;
+  useEffect(() => {
+    if (!toastMessage) return;
+    showToast({ message: toastMessage });
+    return () => dismissToast();
+  }, [toastMessage, showToast, dismissToast]);
 
   function toggleSection(key: SectionKey) {
     setExpandedSections((current) => ({ ...current, [key]: !current[key] }));
@@ -270,8 +278,6 @@ export function BuildingInfoPage() {
               </Button>
             </div>
           </div>
-
-          {toastMessage && <Toast message={toastMessage} />}
         </>
       )}
     </div>

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FinancialValue } from "@/components/ui/financial-value";
-import { Toast } from "@/components/Toast";
+import { useToast } from "@/components/ToastContext";
 import { formatCurrency } from "@/lib/currency";
 import {
   advancePeriod,
@@ -22,23 +22,16 @@ interface DueCardProps {
   items: RecurringExpense[];
 }
 
-interface ToastState {
-  message: string;
-  onUndo?: () => void;
-}
-
 // Between the building header card and Summary (issue #24, FR4) — always
 // uses real "today", never the period picker's selected period (AC9), and
 // is hidden entirely when nothing is due or overdue (AC8).
 export function DueCard({ building, items }: DueCardProps) {
   const { t } = useTranslation();
   const { currency, language } = useSettings();
+  const { showToast, dismissToast } = useToast();
   const updateMutation = useUpdateRecurringExpense();
-  const [pendingSkipIds, setPendingSkipIds] = useState<Set<string>>(
-    new Set(),
-  );
+  const [pendingSkipIds, setPendingSkipIds] = useState<Set<string>>(new Set());
   const skipTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
-  const [toast, setToast] = useState<ToastState | null>(null);
   const [confirmingItem, setConfirmingItem] = useState<RecurringExpense | null>(
     null,
   );
@@ -80,7 +73,7 @@ export function DueCard({ building, items }: DueCardProps) {
     }, 5000);
     skipTimers.current.set(item.recurringExpenseId, timer);
 
-    setToast({
+    showToast({
       message: t("recurringExpense.skippedToast", { name: item.name }),
       onUndo: () => {
         const pendingTimer = skipTimers.current.get(item.recurringExpenseId);
@@ -93,14 +86,14 @@ export function DueCard({ building, items }: DueCardProps) {
           next.delete(item.recurringExpenseId);
           return next;
         });
-        setToast(null);
+        dismissToast();
       },
     });
   }
 
   function handleConfirmTap(item: RecurringExpense) {
-    // FR8a: opening a sheet dismisses any visible toast.
-    setToast(null);
+    // The Sheet itself dismisses any visible toast when it opens (issue
+    // #27's global toast/sheet wiring) — no need to clear it here too.
     setConfirmingItem(item);
   }
 
@@ -137,7 +130,7 @@ export function DueCard({ building, items }: DueCardProps) {
                       amount={recurringExpense.amount}
                       currency={currency}
                     />
-                    <span className="text-secondary text-muted-foreground">
+                    <span className="text-caption text-muted-foreground">
                       ·{" "}
                       {t("recurringExpense.dueDateLabel", {
                         date: formatShortDate(
@@ -178,7 +171,7 @@ export function DueCard({ building, items }: DueCardProps) {
           onClose={() => setConfirmingItem(null)}
           onLogged={(loggedAmount) => {
             setConfirmingItem(null);
-            setToast({
+            showToast({
               message: t("recurringExpense.loggedToast", {
                 name: confirmingItem.name,
                 amount: formatCurrency(loggedAmount, currency),
@@ -187,8 +180,6 @@ export function DueCard({ building, items }: DueCardProps) {
           }}
         />
       )}
-
-      {toast && <Toast message={toast.message} onUndo={toast.onUndo} />}
     </>
   );
 }

@@ -19,14 +19,14 @@ export function Toast({ message, onUndo }: ToastProps) {
   const { t } = useTranslation();
   return (
     <div className="fixed inset-x-0 bottom-[132px] z-50 flex justify-center px-4">
-      <div className="flex items-center gap-3 rounded-lg bg-foreground px-4 py-2.5 text-sm text-background shadow-lg">
+      <div className="flex items-center gap-3 rounded-lg bg-ink px-4 py-2.5 text-body text-on-ink shadow-lg">
         <span>{message}</span>
         {onUndo && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="h-auto p-0 text-background underline underline-offset-2 hover:bg-transparent hover:text-background"
+            className="h-auto p-0 text-on-ink underline underline-offset-2 hover:bg-transparent hover:text-on-ink"
             onClick={onUndo}
           >
             {t("common.undo")}

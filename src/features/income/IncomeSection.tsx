@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Toast } from "@/components/Toast";
 import { queryKeys } from "@/api/queryKeys";
 import { formatCurrency } from "@/lib/currency";
 import { isYearClosed } from "@/lib/closedYears";
@@ -61,6 +60,7 @@ export function IncomeSection({
     queryKey: queryKeys.income.all,
     getId: (entry) => entry.incomeId,
     onCommit: (entry) => deleteIncomeMutation.mutateAsync(entry.incomeId),
+    message: t("income.deletedMessage"),
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -72,7 +72,9 @@ export function IncomeSection({
 
   const years = useMemo(() => groupIncomeByYear(income ?? []), [income]);
   const expandedYearGroup =
-    expandedYear !== null ? years.find((y) => y.year === expandedYear) : undefined;
+    expandedYear !== null
+      ? years.find((y) => y.year === expandedYear)
+      : undefined;
   const allTimeTotal = useMemo(
     () => (income ?? []).reduce((sum, entry) => sum + entry.amount, 0),
     [income],
@@ -92,153 +94,153 @@ export function IncomeSection({
 
   return (
     <>
-    <CollapsibleSectionCard
-      title={t("income.title")}
-      hint={`${t("income.totalAllTime")} ${formatCurrency(allTimeTotal, currency)}`}
-      isExpanded={isExpanded}
-      onToggle={onToggleExpanded}
-    >
-      <div className="flex flex-col gap-4">
-        <p className="tabular-nums">
-          <span className="text-muted-foreground">{headlineLabel}</span>{" "}
-          <span className="font-medium">
-            {formatCurrency(headlineTotal, currency)}
-          </span>
-        </p>
-        {showAddForm ? (
-          <IncomeForm
-            isSubmitting={createIncome.isPending}
-            onSubmit={(input) => {
-              createIncome.mutate(
-                { propertyId, ...input },
-                { onSuccess: () => setShowAddForm(false) },
-              );
-            }}
-            onCancel={() => setShowAddForm(false)}
-          />
-        ) : (
-          <Button className="self-start" onClick={() => setShowAddForm(true)}>
-            {t("income.logButton")}
-          </Button>
-        )}
+      <CollapsibleSectionCard
+        title={t("income.title")}
+        hint={`${t("income.totalAllTime")} ${formatCurrency(allTimeTotal, currency)}`}
+        isExpanded={isExpanded}
+        onToggle={onToggleExpanded}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="tabular-nums">
+            <span className="text-muted-foreground">{headlineLabel}</span>{" "}
+            <span className="font-medium">
+              {formatCurrency(headlineTotal, currency)}
+            </span>
+          </p>
+          {showAddForm ? (
+            <IncomeForm
+              isSubmitting={createIncome.isPending}
+              onSubmit={(input) => {
+                createIncome.mutate(
+                  { propertyId, ...input },
+                  { onSuccess: () => setShowAddForm(false) },
+                );
+              }}
+              onCancel={() => setShowAddForm(false)}
+            />
+          ) : (
+            <Button className="self-start" onClick={() => setShowAddForm(true)}>
+              {t("income.logButton")}
+            </Button>
+          )}
 
-        {isPending && (
-          <p className="text-muted-foreground">{t("income.loading")}</p>
-        )}
-        {isError && (
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertDescription>
-              {error instanceof Error ? error.message : t("income.loadError")}
-            </AlertDescription>
-          </Alert>
-        )}
+          {isPending && (
+            <p className="text-muted-foreground">{t("income.loading")}</p>
+          )}
+          {isError && (
+            <Alert variant="destructive">
+              <AlertCircle />
+              <AlertDescription>
+                {error instanceof Error ? error.message : t("income.loadError")}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {!isPending && !isError && (
-          <>
-            {years.length === 0 ? (
-              <p className="text-muted-foreground">{t("income.emptyNoneYet")}</p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {years.map((yearGroup) => {
-                  const isExpanded = yearGroup.year === expandedYear;
-                  const visibleMonths = isExpanded
-                    ? showAllMonths
-                      ? yearGroup.months
-                      : yearGroup.months.slice(0, RECENT_MONTHS_DEFAULT)
-                    : [];
-                  const hasMoreMonths =
-                    yearGroup.months.length > RECENT_MONTHS_DEFAULT;
+          {!isPending && !isError && (
+            <>
+              {years.length === 0 ? (
+                <p className="text-muted-foreground">
+                  {t("income.emptyNoneYet")}
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {years.map((yearGroup) => {
+                    const isExpanded = yearGroup.year === expandedYear;
+                    const visibleMonths = isExpanded
+                      ? showAllMonths
+                        ? yearGroup.months
+                        : yearGroup.months.slice(0, RECENT_MONTHS_DEFAULT)
+                      : [];
+                    const hasMoreMonths =
+                      yearGroup.months.length > RECENT_MONTHS_DEFAULT;
 
-                  return (
-                    <div
-                      key={yearGroup.year}
-                      className="rounded-lg border border-border"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleYear(yearGroup.year)}
-                        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+                    return (
+                      <div
+                        key={yearGroup.year}
+                        className="rounded-lg border border-border"
                       >
-                        <span className="flex items-baseline gap-2">
-                          <span className="font-medium">{yearGroup.year}</span>
-                          <span className="text-sm text-muted-foreground">
-                            {formatPaymentsCount(yearGroup.count, t)}
+                        <button
+                          type="button"
+                          onClick={() => toggleYear(yearGroup.year)}
+                          className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+                        >
+                          <span className="flex items-baseline gap-2">
+                            <span className="font-medium">
+                              {yearGroup.year}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {formatPaymentsCount(yearGroup.count, t)}
+                            </span>
                           </span>
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <span className="tabular-nums font-medium">
-                            {formatCurrency(yearGroup.total, currency)}
-                          </span>
-                          <ChevronDown
-                            className={cn(
-                              "size-4 text-muted-foreground transition-transform",
-                              isExpanded && "rotate-180",
-                            )}
-                          />
-                        </span>
-                      </button>
-
-                      {isExpanded && (
-                        <div className="flex flex-col divide-y divide-border border-t border-border">
-                          {visibleMonths.map((monthGroup) => (
-                            <MonthSection
-                              key={monthGroup.month}
-                              monthGroup={monthGroup}
-                              language={language}
-                              currency={currency}
-                              closedYears={closedYears ?? []}
-                              isExpanded={expandedMonth === monthGroup.month}
-                              onToggle={() =>
-                                setExpandedMonth((current) =>
-                                  current === monthGroup.month
-                                    ? null
-                                    : monthGroup.month,
-                                )
-                              }
-                              editingId={editingId}
-                              onEdit={setEditingId}
-                              onDelete={(entry) => undoableDelete.remove(entry)}
-                              updateIncome={updateIncome}
-                              onSaveEdit={() => setEditingId(null)}
+                          <span className="flex items-center gap-2">
+                            <span className="tabular-nums font-medium">
+                              {formatCurrency(yearGroup.total, currency)}
+                            </span>
+                            <ChevronDown
+                              className={cn(
+                                "size-4 text-muted-foreground transition-transform",
+                                isExpanded && "rotate-180",
+                              )}
                             />
-                          ))}
-                          {hasMoreMonths && (
-                            <button
-                              type="button"
-                              className="flex w-full items-center justify-center gap-1.5 bg-muted px-4 py-3 text-center text-sm font-medium text-primary hover:bg-muted/70"
-                              onClick={() => setShowAllMonths((v) => !v)}
-                            >
-                              {showAllMonths
-                                ? t("income.showLastThreeMonths")
-                                : t("income.showAllMonths", {
-                                    count: String(yearGroup.months.length),
-                                  })}
-                              <ChevronDown
-                                className={cn(
-                                  "size-4 transition-transform",
-                                  showAllMonths && "rotate-180",
-                                )}
+                          </span>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="flex flex-col divide-y divide-border border-t border-border">
+                            {visibleMonths.map((monthGroup) => (
+                              <MonthSection
+                                key={monthGroup.month}
+                                monthGroup={monthGroup}
+                                language={language}
+                                currency={currency}
+                                closedYears={closedYears ?? []}
+                                isExpanded={expandedMonth === monthGroup.month}
+                                onToggle={() =>
+                                  setExpandedMonth((current) =>
+                                    current === monthGroup.month
+                                      ? null
+                                      : monthGroup.month,
+                                  )
+                                }
+                                editingId={editingId}
+                                onEdit={setEditingId}
+                                onDelete={(entry) =>
+                                  undoableDelete.remove(entry)
+                                }
+                                updateIncome={updateIncome}
+                                onSaveEdit={() => setEditingId(null)}
                               />
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </CollapsibleSectionCard>
-    {undoableDelete.pendingItem && (
-      <Toast
-        message={t("income.deletedMessage")}
-        onUndo={undoableDelete.undo}
-      />
-    )}
+                            ))}
+                            {hasMoreMonths && (
+                              <button
+                                type="button"
+                                className="flex w-full items-center justify-center gap-1.5 bg-muted px-4 py-3 text-center text-sm font-medium text-primary hover:bg-muted/70"
+                                onClick={() => setShowAllMonths((v) => !v)}
+                              >
+                                {showAllMonths
+                                  ? t("income.showLastThreeMonths")
+                                  : t("income.showAllMonths", {
+                                      count: String(yearGroup.months.length),
+                                    })}
+                                <ChevronDown
+                                  className={cn(
+                                    "size-4 transition-transform",
+                                    showAllMonths && "rotate-180",
+                                  )}
+                                />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </CollapsibleSectionCard>
     </>
   );
 }

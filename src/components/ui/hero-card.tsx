@@ -21,7 +21,7 @@ function HeroCardLabel({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="hero-card-label"
-      className={cn("text-secondary text-muted-foreground", className)}
+      className={cn("text-caption text-muted-foreground", className)}
       {...props}
     />
   );

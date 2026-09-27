@@ -2,6 +2,14 @@ import { useState, type FormEvent } from "react";
 import { AlertCircle, Archive } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -94,13 +102,13 @@ export function PropertyForm({
         )}
       </div>
 
-      {onArchive && !showArchiveConfirm && (
+      {onArchive && (
         <>
           <div className="border-t border-border" />
           <button
             type="button"
             onClick={() => setShowArchiveConfirm(true)}
-            className="flex items-center justify-center gap-2 text-sm font-medium text-destructive"
+            className="flex items-center justify-center gap-2 text-body-strong text-red-text"
           >
             <Archive className="size-4" />
             {t("property.archiveUnitButton")}
@@ -108,36 +116,39 @@ export function PropertyForm({
         </>
       )}
 
-      {onArchive && showArchiveConfirm && (
-        <div className="flex flex-col gap-3 rounded-lg border border-destructive p-4">
-          <div className="flex flex-col gap-1">
-            <p className="font-medium">
-              {t("property.archiveUnitConfirmTitle", { name })}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("property.archiveUnitConfirmBody")}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              disabled={isArchiving}
-              onClick={() => setShowArchiveConfirm(false)}
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="button"
-              className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={isArchiving}
-              onClick={onArchive}
-            >
-              {t("common.archive")}
-            </Button>
-          </div>
-        </div>
+      {onArchive && (
+        <Dialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {t("property.archiveUnitConfirmTitle", { name })}
+              </DialogTitle>
+              <DialogDescription>
+                {t("property.archiveUnitConfirmBody")}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                disabled={isArchiving}
+                onClick={() => setShowArchiveConfirm(false)}
+              >
+                {t("common.cancel")}
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                className="flex-1"
+                disabled={isArchiving}
+                onClick={onArchive}
+              >
+                {t("common.archive")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </form>
   );

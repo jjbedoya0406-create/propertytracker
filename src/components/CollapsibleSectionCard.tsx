@@ -34,12 +34,16 @@ export function CollapsibleSectionCard({
           onClick={onToggle}
           className="flex w-full items-center justify-between gap-2 text-left"
         >
-          <span className="flex flex-col gap-0.5">
-            <span className="font-heading text-base leading-snug font-medium">
-              {title}
-            </span>
+          <span className="flex flex-col gap-1">
+            {/* Section 6 SectionHeader: title in the "section" role, ink.
+                The doc draws optional meta beside the title, not below —
+                kept below since that's an existing layout choice (the
+                collapsed-state hint), not something this ticket changes. */}
+            <span className="text-section text-ink">{title}</span>
             {!isExpanded && hint && (
-              <span className="text-sm text-muted-foreground">{hint}</span>
+              <span className="text-caption text-muted-foreground">
+                {hint}
+              </span>
             )}
           </span>
           <ChevronDown

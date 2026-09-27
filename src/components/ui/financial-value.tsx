@@ -69,7 +69,7 @@ function sizeClassFor(type: FinancialValueType): string {
     case "stat":
       return "text-value font-semibold";
     case "supporting":
-      return "text-secondary font-normal";
+      return "text-caption font-normal";
     case "income":
     case "expense":
     case "list-net":

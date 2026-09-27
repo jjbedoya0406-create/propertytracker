@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { AuthProvider, ProtectedRoute } from "./auth";
 import { BottomTabBar } from "./components/BottomTabBar";
+import { ToastProvider } from "./components/ToastContext";
 import { queryClient } from "./queryClient";
 import { PeriodProvider } from "./portfolio/PeriodContext";
 import { RequirePortfolio } from "./portfolio/RequirePortfolio";
@@ -26,17 +27,22 @@ function PortfolioLayout() {
             renders here, inside RequirePortfolio's ready state, rather
             than in the outer Layout — which sits outside this provider
             and would crash on mount (e.g. right after sign-in, before
-            settings resolve). */}
+            settings resolve). Toast (issue #27's global toast slot) has
+            the exact same requirement — it also renders text through
+            useTranslation — so ToastProvider lives here too, not above
+            the router where the (unauthenticated) sign-in route sits. */}
         {/* Session-wide period (issue #22) — mounted above the routed
             pages so it survives navigating between a building and its
             units, or between properties, without persisting to storage
             (resets to the current month on an actual reload). */}
-        <PeriodProvider>
-          <div className="flex flex-1 flex-col pb-24">
-            <Outlet />
-          </div>
-        </PeriodProvider>
-        <BottomTabBar />
+        <ToastProvider>
+          <PeriodProvider>
+            <div className="flex flex-1 flex-col pb-24">
+              <Outlet />
+            </div>
+          </PeriodProvider>
+          <BottomTabBar />
+        </ToastProvider>
       </RequirePortfolio>
     </ProtectedRoute>
   );

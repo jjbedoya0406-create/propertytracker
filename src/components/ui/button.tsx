@@ -42,8 +42,8 @@ const buttonVariants = cva(
       size: {
         default:
           "h-11 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3.5 has-data-[icon=inline-start]:pl-3.5",
-        xs: "h-11 gap-1 rounded-[min(var(--radius-md),10px)] px-3 text-secondary in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
-        sm: "h-11 gap-1 rounded-[min(var(--radius-md),12px)] px-3.5 text-secondary in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+        xs: "h-11 gap-1 rounded-[min(var(--radius-md),10px)] px-3 text-caption in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+        sm: "h-11 gap-1 rounded-[min(var(--radius-md),12px)] px-3.5 text-caption in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
         lg: "h-12 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3.5 has-data-[icon=inline-start]:pl-3.5",
         // Section 8 "Full-width bottom action": 52px tall. Not wired into
         // any screen yet (that's a later ticket's screen migration) — the

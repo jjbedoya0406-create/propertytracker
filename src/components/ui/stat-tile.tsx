@@ -20,7 +20,7 @@ function StatTileLabel({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="stat-tile-label"
-      className={cn("text-secondary text-muted-foreground", className)}
+      className={cn("text-caption text-muted-foreground", className)}
       {...props}
     />
   );
