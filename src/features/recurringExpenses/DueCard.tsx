@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FinancialValue } from "@/components/ui/financial-value";
 import { Toast } from "@/components/Toast";
 import { formatCurrency } from "@/lib/currency";
 import {
@@ -105,15 +106,15 @@ export function DueCard({ building, items }: DueCardProps) {
 
   return (
     <>
-      <Card>
+      <Card variant="due">
         <CardContent className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-medium">
+            <h2 className="text-section text-ink">
               {t("recurringExpense.dueTitle")}
             </h2>
             <Badge>{dueItems.length}</Badge>
           </div>
-          <div className="divide-y divide-border rounded-lg border">
+          <div className="divide-y divide-amber-line rounded-lg border border-amber-line">
             {dueItems.map(({ recurringExpense, status }) => (
               <div
                 key={recurringExpense.recurringExpenseId}
@@ -121,21 +122,30 @@ export function DueCard({ building, items }: DueCardProps) {
               >
                 <div className="flex flex-col gap-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{recurringExpense.name}</span>
+                    <span className="text-body-strong text-ink">
+                      {recurringExpense.name}
+                    </span>
                     {status === "overdue" && (
-                      <Badge variant="destructive">
+                      <Badge variant="overdue">
                         {t("recurringExpense.overdueTag")}
                       </Badge>
                     )}
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {formatCurrency(recurringExpense.amount, currency)} ·{" "}
-                    {t("recurringExpense.dueDateLabel", {
-                      date: formatShortDate(
-                        recurringExpense.nextDueDate,
-                        language,
-                      ),
-                    })}
+                  <span className="flex items-center gap-1">
+                    <FinancialValue
+                      type="supporting"
+                      amount={recurringExpense.amount}
+                      currency={currency}
+                    />
+                    <span className="text-secondary text-muted-foreground">
+                      ·{" "}
+                      {t("recurringExpense.dueDateLabel", {
+                        date: formatShortDate(
+                          recurringExpense.nextDueDate,
+                          language,
+                        ),
+                      })}
+                    </span>
                   </span>
                 </div>
                 <div className="flex gap-2">

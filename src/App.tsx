@@ -5,6 +5,7 @@ import { BottomTabBar } from "./components/BottomTabBar";
 import { queryClient } from "./queryClient";
 import { PeriodProvider } from "./portfolio/PeriodContext";
 import { RequirePortfolio } from "./portfolio/RequirePortfolio";
+import { DevComponentsPreviewPage } from "./routes/DevComponentsPreviewPage";
 import {
   BuildingInfoPage,
   CapturePage,
@@ -47,6 +48,19 @@ function App() {
       <AuthProvider>
         <HashRouter>
           <Routes>
+            {/* Ink design system component preview (issue #26) — dev only,
+                per docs/Design_System_v0.2.md section 14's own
+                "production build must exclude it" requirement.
+                import.meta.env.DEV is statically false in a production
+                build, so Vite/esbuild dead-code-eliminates this whole
+                branch (and, with it, the otherwise-unused import) rather
+                than just hiding it at runtime. */}
+            {import.meta.env.DEV && (
+              <Route
+                path="dev/components"
+                element={<DevComponentsPreviewPage />}
+              />
+            )}
             <Route element={<Layout />}>
               <Route index element={<Navigate to="/properties" replace />} />
               <Route path="sign-in" element={<SignInPage />} />

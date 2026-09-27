@@ -280,7 +280,7 @@ export function PropertyDetailPage() {
                       <PeriodPickerSheet scope={scope} />
                     )}
                     {activeProperty.status === "archived" && (
-                      <Badge variant="secondary">
+                      <Badge variant="paused">
                         {t("common.archived")}
                       </Badge>
                     )}

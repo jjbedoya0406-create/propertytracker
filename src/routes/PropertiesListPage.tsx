@@ -308,7 +308,7 @@ function StandalonePropertyRow({
       <div className="flex items-center gap-2">
         {isJustCreated && <LoggedStamp />}
         {property.status === "archived" && (
-          <Badge variant="secondary">{t("common.archived")}</Badge>
+          <Badge variant="paused">{t("common.archived")}</Badge>
         )}
         <ChevronRight className="size-4 text-muted-foreground" />
       </div>

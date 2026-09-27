@@ -153,6 +153,56 @@
   --radius-md: var(--radius-control);
   --radius-lg: var(--radius-control);
   --radius-xl: var(--radius-card);
+
+  /* Section 1 tokens exposed as Tailwind utilities (bg-ink, text-red-text,
+     border-amber-line, ...) so component files can use token names
+     directly (issue #26's own requirement) instead of arbitrary-value
+     var() syntax. Only the tokens not already covered by a shadcn alias
+     above need their own utility here. */
+  --color-ink: var(--ink);
+  --color-ink-pressed: var(--ink-pressed);
+  --color-on-ink: var(--on-ink);
+  --color-page: var(--page);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-mint: var(--mint);
+  --color-mint-text: var(--mint-text);
+  --color-mint-bg: var(--mint-bg);
+  --color-red: var(--red);
+  --color-red-text: var(--red-text);
+  --color-red-bg: var(--red-bg);
+  --color-amber: var(--amber);
+  --color-amber-text: var(--amber-text);
+  --color-amber-bg: var(--amber-bg);
+  --color-amber-line: var(--amber-line);
+  --color-disabled-bg: var(--disabled-bg);
+  --color-disabled-text: var(--disabled-text);
+  --color-focus: var(--focus);
+
+  /* Section 2 type scale, exposed as named text-* utilities (Tailwind v4's
+     paired --text-NAME and --text-NAME--line-height variables) so
+     components can write e.g. text-hero instead of a raw px value. Weight
+     is not part of this pairing; apply font-normal/medium/semibold per
+     the doc's Weight column alongside these. The full Text role
+     component itself is Ticket 3's job (docs/Design_System_v0.2.md
+     section 14); this just defines the underlying scale it and
+     FinancialValue both need now. */
+  --text-hero: 40px;
+  --text-hero--line-height: 48px;
+  --text-title: 24px;
+  --text-title--line-height: 32px;
+  --text-value: 18px;
+  --text-value--line-height: 24px;
+  --text-section: 15px;
+  --text-section--line-height: 20px;
+  --text-body-strong: 15px;
+  --text-body-strong--line-height: 22px;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-secondary: 13px;
+  --text-secondary--line-height: 18px;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
 }
 
 body {

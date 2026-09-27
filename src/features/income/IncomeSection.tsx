@@ -391,7 +391,7 @@ function IncomeEntryRow({
           {formatCurrency(entry.amount, currency)}
         </span>
         {isYearClosed(closedYears, entry.date) ? (
-          <Badge variant="secondary">{t("common.closed")}</Badge>
+          <Badge variant="paused">{t("common.closed")}</Badge>
         ) : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

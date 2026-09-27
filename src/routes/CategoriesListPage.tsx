@@ -99,7 +99,7 @@ export function CategoriesListPage() {
                         <LoggedStamp />
                       )}
                       {category.status === "archived" && (
-                        <Badge variant="secondary">
+                        <Badge variant="paused">
                           {t("common.archived")}
                         </Badge>
                       )}

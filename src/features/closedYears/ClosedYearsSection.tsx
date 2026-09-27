@@ -68,7 +68,7 @@ export function ClosedYearsSection() {
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium">{year}</span>
                     {isClosed && (
-                      <Badge variant="secondary">{t("common.closed")}</Badge>
+                      <Badge variant="paused">{t("common.closed")}</Badge>
                     )}
                   </div>
                   {!isClosed &&

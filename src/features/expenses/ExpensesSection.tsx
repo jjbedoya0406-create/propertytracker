@@ -202,7 +202,7 @@ export function ExpensesSection({
                           </Button>
                         )}
                         {isYearClosed(closedYears ?? [], expense.date) ? (
-                          <Badge variant="secondary">{t("common.closed")}</Badge>
+                          <Badge variant="paused">{t("common.closed")}</Badge>
                         ) : (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

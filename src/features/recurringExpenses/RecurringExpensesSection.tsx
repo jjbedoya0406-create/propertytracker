@@ -64,7 +64,7 @@ export function RecurringExpensesSection({
                   </span>
                 </div>
                 {item.status === "paused" && (
-                  <Badge variant="secondary">
+                  <Badge variant="paused">
                     {t("recurringExpense.pausedTag")}
                   </Badge>
                 )}
