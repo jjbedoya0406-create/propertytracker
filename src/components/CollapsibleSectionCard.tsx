@@ -41,16 +41,15 @@ export function CollapsibleSectionCard({
                 collapsed-state hint), not something this ticket changes. */}
             <span className="text-section text-ink">{title}</span>
             {!isExpanded && hint && (
-              <span className="text-caption text-muted-foreground">
-                {hint}
-              </span>
+              <span className="text-caption text-muted-foreground">{hint}</span>
             )}
           </span>
           <ChevronDown
             className={cn(
-              "size-4 shrink-0 text-muted-foreground transition-transform",
+              "size-5 shrink-0 text-ink transition-transform",
               isExpanded && "rotate-180",
             )}
+            strokeWidth={1.75}
           />
         </button>
       </CardHeader>

@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useParams } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import {
   AlertCircle,
   Building2,
   ChevronLeft,
-  ChevronRight,
   Pencil,
   Plus,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ListRow } from "@/components/ui/list-row";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
 import { useToast } from "@/components/ToastContext";
 import { cn } from "@/lib/utils";
@@ -34,14 +40,14 @@ import { usePeriod } from "../portfolio/PeriodContext";
 import { useSettings } from "../portfolio/context";
 import { SummarySection } from "../features/summary/SummarySection";
 
-type SectionKey = "summary" | "dashboard" | "units" | "recurring";
+type SectionKey = "dashboard" | "units" | "recurring";
 
-// Summary, Units, and Recurring expenses open by default, Dashboard
-// collapsed — Units/Recurring start expanded (unlike the unit-page
-// convention) since seeing what exists is usually the point of landing
-// here.
+// Units and Recurring expenses open by default, Dashboard collapsed —
+// Units/Recurring start expanded (unlike the unit-page convention) since
+// seeing what exists is usually the point of landing here. Summary isn't
+// a toggle at all any more (issue #30) — it's the screen's one
+// always-visible hero figure, matching the doc's HeroCard treatment.
 const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
-  summary: true,
   dashboard: false,
   units: true,
   recurring: true,
@@ -58,6 +64,7 @@ export function BuildingInfoPage() {
   const { buildingId } = useParams<{ buildingId: string }>();
   const { period } = usePeriod();
   const location = useLocation();
+  const navigate = useNavigate();
   const { showToast, dismissToast } = useToast();
   const { data: properties, isPending, isError, error } = useProperties();
   const { data: buildings } = useBuildings();
@@ -111,7 +118,7 @@ export function BuildingInfoPage() {
     <div className={cn("flex flex-col gap-6", isReady && "pb-9")}>
       <Link
         to="/properties"
-        className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex min-h-11 w-fit items-center gap-1 text-body text-muted-foreground hover:text-foreground"
       >
         <ChevronLeft className="size-4" />
         {t("property.backLink")}
@@ -146,7 +153,7 @@ export function BuildingInfoPage() {
                   <Building2 className="mt-0.5 size-5 shrink-0 text-foreground" />
                   {/* line-clamp, never truncate to one line — a long
                       building name should still be readable. */}
-                  <h1 className="line-clamp-2 text-xl font-medium">
+                  <h1 className="line-clamp-2 text-title font-semibold text-ink">
                     {building.name}
                   </h1>
                 </div>
@@ -195,12 +202,7 @@ export function BuildingInfoPage() {
             </Card>
           )}
 
-          <SummarySection
-            scope={scope}
-            period={period}
-            isExpanded={expandedSections.summary}
-            onToggleExpanded={() => toggleSection("summary")}
-          />
+          <SummarySection variant="hero" scope={scope} period={period} />
 
           <CollapsibleSectionCard
             title={`${t("buildings.unitsTitle")} (${units.length})`}
@@ -209,21 +211,18 @@ export function BuildingInfoPage() {
             onToggle={() => toggleSection("units")}
           >
             <div className="flex flex-col gap-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-caption text-muted-foreground">
                 {t("buildings.showingPeriod", {
                   period: formatPeriodLabel(period, language),
                 })}
               </p>
-              <div className="divide-y divide-border rounded-lg border">
+              <div className="divide-y divide-border rounded-lg border px-4">
                 {units.map((unit) => (
-                  <Link
+                  <ListRow
                     key={unit.propertyId}
-                    to={`/properties/${unit.propertyId}`}
-                    className="flex min-h-11 items-center justify-between gap-3 px-4 py-3 hover:bg-muted/50"
-                  >
-                    <span>{unit.name}</span>
-                    <ChevronRight className="size-4 text-muted-foreground" />
-                  </Link>
+                    title={unit.name}
+                    onOpen={() => navigate(`/properties/${unit.propertyId}`)}
+                  />
                 ))}
               </div>
               {showAddUnitForm ? (
@@ -238,14 +237,15 @@ export function BuildingInfoPage() {
                   onCancel={() => setShowAddUnitForm(false)}
                 />
               ) : (
-                <button
+                <Button
                   type="button"
-                  className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary"
+                  variant="text"
+                  className="w-fit px-0"
                   onClick={() => setShowAddUnitForm(true)}
                 >
                   <Plus className="size-4" />
                   {t("buildings.addUnitButton")}
-                </button>
+                </Button>
               )}
             </div>
           </CollapsibleSectionCard>
@@ -271,7 +271,7 @@ export function BuildingInfoPage() {
               directly, per this issue's Non-Goals). */}
           <div className="fixed inset-x-0 bottom-[55px] z-30 border-t border-border bg-background">
             <div className="mx-auto max-w-2xl px-4 pt-2 pb-3">
-              <Button asChild className="w-full shadow-lg">
+              <Button asChild size="full" className="shadow-lg">
                 <Link to={`/capture?buildingId=${building.buildingId}`}>
                   {t("buildings.logExpenseAction")}
                 </Link>

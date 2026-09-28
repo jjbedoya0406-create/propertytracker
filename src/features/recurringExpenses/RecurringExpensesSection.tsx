@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
 import { formatCurrency } from "@/lib/currency";
 import { formatShortDate } from "@/lib/recurringExpenseDates";
@@ -72,13 +73,12 @@ export function RecurringExpensesSection({
             ))}
           </div>
         )}
-        <Link
-          to={`/buildings/${buildingId}/recurring/new`}
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary"
-        >
-          <Plus className="size-4" />
-          {t("recurringExpense.addButton")}
-        </Link>
+        <Button asChild variant="text" className="w-fit px-0">
+          <Link to={`/buildings/${buildingId}/recurring/new`}>
+            <Plus className="size-4" />
+            {t("recurringExpense.addButton")}
+          </Link>
+        </Button>
       </div>
     </CollapsibleSectionCard>
   );
