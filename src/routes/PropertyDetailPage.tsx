@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
 import { PromotePropertyForm } from "../features/buildings/PromotePropertyForm";
@@ -29,12 +30,13 @@ import {
   useUpdateProperty,
 } from "../features/properties/hooks";
 
-type SectionKey = "summary" | "dashboard" | "tenancy" | "income" | "expenses";
+type SectionKey = "dashboard" | "tenancy" | "income" | "expenses";
 
-// Summary open, everything else collapsed — the page's job is logging a
-// payment, not analytics (issue #4).
+// Everything collapsed — the page's job is logging a payment, not
+// analytics (issue #4). Summary isn't a toggle at all any more (issue
+// #31) — it's the screen's one always-visible hero figure, matching the
+// Building Detail screen's treatment (issue #30).
 const DEFAULT_EXPANDED: Record<SectionKey, boolean> = {
-  summary: true,
   dashboard: false,
   tenancy: false,
   income: false,
@@ -130,7 +132,7 @@ export function PropertyDetailPage() {
     <div className={cn("flex flex-col gap-6", activeProperty && "pb-9")}>
       <Link
         to="/properties"
-        className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex min-h-11 w-fit items-center gap-1 text-body text-muted-foreground hover:text-foreground"
       >
         <ChevronLeft className="size-4" />
         {t("property.backLink")}
@@ -257,7 +259,7 @@ export function PropertyDetailPage() {
               <div className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <h1 className="truncate text-xl font-medium">
+                    <h1 className="truncate text-title font-semibold text-ink">
                       {activeProperty.name}
                     </h1>
                     {/* Prefers the building's address over this unit's
@@ -265,7 +267,7 @@ export function PropertyDetailPage() {
                         independently since promotion only ever snapshot
                         a copy once, at promotion time. */}
                     {(building?.address ?? activeProperty.address) && (
-                      <p className="text-muted-foreground">
+                      <p className="text-caption text-muted-foreground">
                         {building?.address ?? activeProperty.address}
                       </p>
                     )}
@@ -280,9 +282,7 @@ export function PropertyDetailPage() {
                       <PeriodPickerSheet scope={scope} />
                     )}
                     {activeProperty.status === "archived" && (
-                      <Badge variant="paused">
-                        {t("common.archived")}
-                      </Badge>
+                      <Badge variant="paused">{t("common.archived")}</Badge>
                     )}
                     {/* A unit gets a pencil icon, matching the building
                         screen (issue #21) — Edit/Archive as separate
@@ -290,14 +290,12 @@ export function PropertyDetailPage() {
                         standalone property keeps its own button row
                         below, unchanged. */}
                     {building && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
+                      <IconButton
                         aria-label={t("common.edit")}
                         onClick={() => setIsEditing(true)}
                       >
-                        <Pencil className="size-4" />
-                      </Button>
+                        <Pencil strokeWidth={1.75} />
+                      </IconButton>
                     )}
                   </div>
                 </div>
@@ -383,12 +381,7 @@ export function PropertyDetailPage() {
 
       {scope && (
         <>
-          <SummarySection
-            scope={scope}
-            period={period}
-            isExpanded={expandedSections.summary}
-            onToggleExpanded={() => toggleSection("summary")}
-          />
+          <SummarySection variant="hero" scope={scope} period={period} />
           <DashboardSection
             scope={scope}
             period={period}
@@ -465,9 +458,7 @@ export function PropertyDetailPage() {
                   {t("property.logIncomeQuickAction")}
                 </Button>
                 <Button asChild className="flex-1 shadow-lg">
-                  <Link
-                    to={`/capture?propertyId=${activeProperty.propertyId}`}
-                  >
+                  <Link to={`/capture?propertyId=${activeProperty.propertyId}`}>
                     {t("expenses.logButton")}
                   </Link>
                 </Button>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { FinancialValue } from "@/components/ui/financial-value";
 import { Input } from "@/components/ui/input";
 import { CollapsibleSectionCard } from "@/components/CollapsibleSectionCard";
 import { formatCurrency } from "@/lib/currency";
@@ -32,9 +33,9 @@ export function TenancySection({
   } = useTenancies(propertyId);
   const createTenancy = useCreateTenancy();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [recordingMoveOutFor, setRecordingMoveOutFor] = useState<
-    string | null
-  >(null);
+  const [recordingMoveOutFor, setRecordingMoveOutFor] = useState<string | null>(
+    null,
+  );
 
   const sorted = [...(tenancies ?? [])].sort((a, b) =>
     a.contractStart < b.contractStart ? 1 : -1,
@@ -92,9 +93,7 @@ export function TenancySection({
                 key={tenancy.tenancyId}
                 tenancy={tenancy}
                 currency={currency}
-                isRecordingMoveOut={
-                  recordingMoveOutFor === tenancy.tenancyId
-                }
+                isRecordingMoveOut={recordingMoveOutFor === tenancy.tenancyId}
                 onStartRecordMoveOut={() =>
                   setRecordingMoveOutFor(tenancy.tenancyId)
                 }
@@ -133,22 +132,25 @@ function TenancyRow({
   return (
     <div className="flex flex-col gap-2 px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-caption text-muted-foreground">
           {tenancy.contractStart}
           {" – "}
           {tenancy.expectedEndDate ?? t("tenancy.ongoing")}
         </span>
-        <span className="tabular-nums font-medium">
-          {formatCurrency(tenancy.rentRate, currency)}
-          <span className="text-sm text-muted-foreground">
-            {" "}
+        <span className="flex items-baseline gap-1">
+          <FinancialValue
+            type="neutral"
+            amount={tenancy.rentRate}
+            currency={currency}
+          />
+          <span className="text-caption text-muted-foreground">
             {t("tenancy.perMonth")}
           </span>
         </span>
       </div>
 
       {tenancy.actualMoveOutDate ? (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-caption text-muted-foreground">
           {t("tenancy.movedOutLabel", { date: tenancy.actualMoveOutDate })}
         </span>
       ) : isRecordingMoveOut ? (
