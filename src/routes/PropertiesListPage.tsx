@@ -5,14 +5,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FinancialValue } from "@/components/ui/financial-value";
+import { HeroCard, HeroCardLabel } from "@/components/ui/hero-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoggedStamp } from "@/components/LoggedStamp";
-import { formatCurrency } from "@/lib/currency";
 import { formatMonthLabel } from "@/lib/monthLabel";
-import { cn } from "@/lib/utils";
 import { useTranslation } from "../i18n/useTranslation";
 import { useSettings } from "../portfolio/context";
-import type { Building, Currency, Expense, Income, Property, PropertyStatus } from "../types";
+import type {
+  Building,
+  Currency,
+  Expense,
+  Income,
+  Property,
+  PropertyStatus,
+} from "../types";
 import { useBuildings } from "../features/buildings/hooks";
 import { useAllExpenses } from "../features/expenses/hooks";
 import { useAllIncome } from "../features/income/hooks";
@@ -80,7 +87,9 @@ export function PropertiesListPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-medium">{t("properties.title")}</h1>
+        <h1 className="text-title font-semibold text-ink">
+          {t("properties.title")}
+        </h1>
         {!hasNoPropertiesAtAll && (
           <Tabs
             value={statusFilter}
@@ -95,30 +104,34 @@ export function PropertiesListPage() {
       </div>
 
       {!hasNoPropertiesAtAll && (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-1 py-6 text-center">
-            <span className="text-sm text-muted-foreground">
-              {t("properties.portfolioNetLabel", {
-                month: formatMonthLabel(currentMonth, language),
-              })}
-            </span>
-            <span
-              className={cn(
-                "text-3xl font-medium tabular-nums",
-                portfolioNet < 0 && "text-destructive",
-              )}
-            >
-              {portfolioNet < 0 ? "-" : "+"}
-              {formatCurrency(Math.abs(portfolioNet), currency)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {t("properties.portfolioIncomeExpenses", {
-                income: formatCurrency(portfolioTotals.income, currency),
-                expenses: formatCurrency(portfolioTotals.expenses, currency),
-              })}
-            </span>
-          </CardContent>
-        </Card>
+        <HeroCard className="items-center text-center">
+          <HeroCardLabel>
+            {t("properties.portfolioNetLabel", {
+              month: formatMonthLabel(currentMonth, language),
+            })}
+          </HeroCardLabel>
+          <FinancialValue
+            type="net"
+            amount={portfolioNet}
+            currency={currency}
+            fit
+          />
+          <span className="flex items-center gap-1 text-caption text-muted-foreground">
+            {t("summary.income")}{" "}
+            <FinancialValue
+              type="supporting"
+              amount={portfolioTotals.income}
+              currency={currency}
+            />
+            <span aria-hidden="true">·</span>
+            {t("summary.expenses")}{" "}
+            <FinancialValue
+              type="supporting"
+              amount={portfolioTotals.expenses}
+              currency={currency}
+            />
+          </span>
+        </HeroCard>
       )}
 
       {hasNoPropertiesAtAll && !showAddForm && (
@@ -143,40 +156,38 @@ export function PropertiesListPage() {
               })}
             </p>
           ) : (
-            <Card className="gap-0 py-0">
-              <CardContent className="divide-y divide-border px-0">
-                {items.map((item) =>
-                  item.kind === "standalone" ? (
-                    <StandalonePropertyRow
-                      key={item.property.propertyId}
-                      property={item.property}
-                      isJustCreated={item.property.propertyId === justCreatedId}
-                      currency={currency}
-                      preview={previewForStandalone(
-                        item.property,
-                        allIncome ?? [],
-                        allExpenses ?? [],
-                        currentMonth,
-                      )}
-                    />
-                  ) : (
-                    <BuildingListRow
-                      key={item.building.buildingId}
-                      building={item.building}
-                      units={item.units}
-                      currency={currency}
-                      preview={previewForBuilding(
-                        item.building,
-                        item.units,
-                        allIncome ?? [],
-                        allExpenses ?? [],
-                        currentMonth,
-                      )}
-                    />
-                  ),
-                )}
-              </CardContent>
-            </Card>
+            <div className="flex flex-col gap-3">
+              {items.map((item) =>
+                item.kind === "standalone" ? (
+                  <StandalonePropertyRow
+                    key={item.property.propertyId}
+                    property={item.property}
+                    isJustCreated={item.property.propertyId === justCreatedId}
+                    currency={currency}
+                    preview={previewForStandalone(
+                      item.property,
+                      allIncome ?? [],
+                      allExpenses ?? [],
+                      currentMonth,
+                    )}
+                  />
+                ) : (
+                  <BuildingListRow
+                    key={item.building.buildingId}
+                    building={item.building}
+                    units={item.units}
+                    currency={currency}
+                    preview={previewForBuilding(
+                      item.building,
+                      item.units,
+                      allIncome ?? [],
+                      allExpenses ?? [],
+                      currentMonth,
+                    )}
+                  />
+                ),
+              )}
+            </div>
           )}
 
           {!showAddForm && (
@@ -254,28 +265,29 @@ function RowPreview({
   const { t } = useTranslation();
   if (preview.kind === "noActivity") {
     return (
-      <span className="text-sm text-muted-foreground">
+      <span className="text-caption text-muted-foreground">
         {t("properties.noActivityYet")}
       </span>
     );
   }
+  // A property/building that's never had an income record (e.g. an
+  // owner-occupied unit) previews its expenses alone (see
+  // portfolioSummary.ts) — genuinely an "expense" figure, not a net.
   if (preview.kind === "expensesOnly") {
     return (
-      <span className="text-sm tabular-nums text-muted-foreground">
-        {formatCurrency(preview.amount, currency)}
-      </span>
+      <FinancialValue
+        type="expense"
+        amount={preview.amount}
+        currency={currency}
+      />
     );
   }
   return (
-    <span
-      className={cn(
-        "text-sm tabular-nums",
-        preview.amount < 0 ? "text-destructive" : "text-muted-foreground",
-      )}
-    >
-      {preview.amount < 0 ? "-" : "+"}
-      {formatCurrency(Math.abs(preview.amount), currency)}
-    </span>
+    <FinancialValue
+      type="list-net"
+      amount={preview.amount}
+      currency={currency}
+    />
   );
 }
 
@@ -292,27 +304,30 @@ function StandalonePropertyRow({
 }) {
   const { t } = useTranslation();
   return (
-    <Link
-      to={`/properties/${property.propertyId}`}
-      className="flex min-h-11 items-center justify-between gap-3 px-4 py-3 hover:bg-muted/50"
-    >
-      <span className="flex items-center gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
-          <Home className="size-4 text-primary" />
+    <Card className="[--card-spacing:0px]">
+      <Link
+        to={`/properties/${property.propertyId}`}
+        className="flex min-h-11 items-center justify-between gap-3 p-4 hover:bg-muted/50"
+      >
+        <span className="flex items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <Home className="size-4 text-primary" />
+          </span>
+          <span className="text-body-strong text-ink">{property.name}</span>
         </span>
-        <span className="flex flex-col gap-0.5">
-          <span className="font-medium">{property.name}</span>
+        <div className="flex items-center gap-2">
+          {isJustCreated && <LoggedStamp />}
+          {property.status === "archived" && (
+            <Badge variant="paused">{t("common.archived")}</Badge>
+          )}
           <RowPreview preview={preview} currency={currency} />
-        </span>
-      </span>
-      <div className="flex items-center gap-2">
-        {isJustCreated && <LoggedStamp />}
-        {property.status === "archived" && (
-          <Badge variant="paused">{t("common.archived")}</Badge>
-        )}
-        <ChevronRight className="size-4 text-muted-foreground" />
-      </div>
-    </Link>
+          <ChevronRight
+            className="size-5 shrink-0 text-ink"
+            strokeWidth={1.75}
+          />
+        </div>
+      </Link>
+    </Card>
   );
 }
 
@@ -332,24 +347,30 @@ function BuildingListRow({
 }) {
   const { t } = useTranslation();
   return (
-    <Link
-      to={`/buildings/${building.buildingId}`}
-      className="flex min-h-11 items-center justify-between gap-3 px-4 py-3 hover:bg-muted/50"
-    >
-      <span className="flex items-center gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2B3A55]/10">
-          <Building2 className="size-4 text-[#2B3A55]" />
-        </span>
-        <span className="flex flex-col gap-0.5">
-          <span className="font-medium">{building.name}</span>
-          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <span>{t("properties.unitCount", { count: String(units.length) })}</span>
-            <span aria-hidden="true">·</span>
-            <RowPreview preview={preview} currency={currency} />
+    <Card className="[--card-spacing:0px]">
+      <Link
+        to={`/buildings/${building.buildingId}`}
+        className="flex min-h-11 items-center justify-between gap-3 p-4 hover:bg-muted/50"
+      >
+        <span className="flex items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-stamp/10">
+            <Building2 className="size-4 text-stamp" />
+          </span>
+          <span className="flex flex-col gap-0.5">
+            <span className="text-body-strong text-ink">{building.name}</span>
+            <span className="text-caption text-muted-foreground">
+              {t("properties.unitCount", { count: String(units.length) })}
+            </span>
           </span>
         </span>
-      </span>
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-    </Link>
+        <div className="flex items-center gap-2">
+          <RowPreview preview={preview} currency={currency} />
+          <ChevronRight
+            className="size-5 shrink-0 text-ink"
+            strokeWidth={1.75}
+          />
+        </div>
+      </Link>
+    </Card>
   );
 }

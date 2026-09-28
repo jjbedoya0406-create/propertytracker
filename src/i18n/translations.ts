@@ -48,14 +48,14 @@ const en = {
   "historicalImport.previewButton": "Preview import",
   "historicalImport.previewingButton": "Reading file…",
   "historicalImport.previewError": "Failed to read the file.",
-  "historicalImport.unresolvedHeading":
-    "Needs a match before importing",
+  "historicalImport.unresolvedHeading": "Needs a match before importing",
   "historicalImport.unresolvedRowCount": "{count} row(s)",
   "historicalImport.mapToPlaceholder": "Choose a match",
   "historicalImport.needsReviewNotice":
     "{count} row(s) are flagged for review (e.g. an assumed date) — check them after importing.",
   "historicalImport.reconciliationHeading": "Reconciliation",
-  "historicalImport.reconciliationLine": "Income {income} · Expenses {expenses}",
+  "historicalImport.reconciliationLine":
+    "Income {income} · Expenses {expenses}",
   "historicalImport.reconciliationMismatch":
     "Doesn't match this file's own monthly total — check the mapping above.",
   "historicalImport.dismissMismatch": "Dismiss this mismatch",
@@ -90,7 +90,6 @@ const en = {
     "Couldn't load your properties. Try reloading the page.",
   "properties.unitCount": "{count} units",
   "properties.portfolioNetLabel": "Portfolio net · {month}",
-  "properties.portfolioIncomeExpenses": "Income {income} · Expenses {expenses}",
   "properties.noActivityYet": "No activity yet",
 
   "propertyForm.nameLabel": "Name",
@@ -291,7 +290,8 @@ const en = {
   "validation.unitNameRequired": "Unit name is required",
 
   "errors.saveExpenseFailed": "Failed to save expense",
-  "errors.yearClosed": "{year} is closed — nothing can be added, edited, or deleted for that year.",
+  "errors.yearClosed":
+    "{year} is closed — nothing can be added, edited, or deleted for that year.",
 
   "settings.closedYearsTitle": "Tax years",
   "settings.closedYearsDescription":
@@ -357,7 +357,8 @@ const es: Record<TranslationKey, string> = {
   "historicalImport.needsReviewNotice":
     "{count} fila(s) están marcadas para revisión (p. ej. una fecha asumida) — revísalas después de importar.",
   "historicalImport.reconciliationHeading": "Conciliación",
-  "historicalImport.reconciliationLine": "Ingresos {income} · Gastos {expenses}",
+  "historicalImport.reconciliationLine":
+    "Ingresos {income} · Gastos {expenses}",
   "historicalImport.reconciliationMismatch":
     "No coincide con el total mensual del archivo — revisa la coincidencia arriba.",
   "historicalImport.dismissMismatch": "Descartar esta discrepancia",
@@ -392,7 +393,6 @@ const es: Record<TranslationKey, string> = {
     "No se pudieron cargar tus propiedades. Intenta recargar la página.",
   "properties.unitCount": "{count} unidades",
   "properties.portfolioNetLabel": "Neto del portafolio · {month}",
-  "properties.portfolioIncomeExpenses": "Ingresos {income} · Gastos {expenses}",
   "properties.noActivityYet": "Sin actividad aún",
 
   "propertyForm.nameLabel": "Nombre",
@@ -446,7 +446,8 @@ const es: Record<TranslationKey, string> = {
   "recurringExpense.endConfirmBody":
     "Dejará de aparecer como pendiente. Los gastos que ya registraste se mantienen en tus registros.",
   "recurringExpense.pausedToast": "{name} pausado",
-  "recurringExpense.resumedToast": "{name} reanudado · próximo vencimiento {date}",
+  "recurringExpense.resumedToast":
+    "{name} reanudado · próximo vencimiento {date}",
   "recurringExpense.endedToast": "{name} finalizado",
   "recurringExpense.dueTitle": "Pendientes",
   "recurringExpense.overdueTag": "Vencido",
@@ -487,7 +488,8 @@ const es: Record<TranslationKey, string> = {
   "expenseForm.removeAttachment": "Quitar archivo adjunto",
   "expenseForm.unsupportedFileType":
     "Ese tipo de archivo no es compatible. Usa PDF, JPG, PNG o HEIC.",
-  "expenseForm.fileTooLarge": "El archivo es demasiado grande. El límite es {max} MB.",
+  "expenseForm.fileTooLarge":
+    "El archivo es demasiado grande. El límite es {max} MB.",
   "expenseForm.receiptPreviewAlt": "Vista previa del recibo",
   "expenseForm.readingReceipt": "Leyendo recibo…",
   "expenseForm.scopeLabel": "Este gasto es para",
@@ -555,7 +557,8 @@ const es: Record<TranslationKey, string> = {
 
   "dashboard.title": "Panel",
   "dashboard.otherCategory": "Otros",
-  "dashboard.topCategoryHint": "Categoría principal en {period}: {name} — {percent}%",
+  "dashboard.topCategoryHint":
+    "Categoría principal en {period}: {name} — {percent}%",
   "dashboard.emptyHint": "Sin actividad en {period}",
   "dashboard.backToDashboard": "Volver al panel",
 

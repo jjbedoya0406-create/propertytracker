@@ -128,9 +128,7 @@ function PreviewContent() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <span className="text-section text-ink">Recurring expenses</span>
-            <span className="text-caption text-muted-foreground">
-              3 bills
-            </span>
+            <span className="text-caption text-muted-foreground">3 bills</span>
           </div>
         </div>
       </Section>

@@ -1,9 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Section 6 "Hero card": the one primary figure on a screen. Built for
-// Ticket 2's preview page — not wired into any screen yet, since no screen
-// currently has this layout (that's a later, Phase 2 ticket).
+// Section 6 "Hero card": the one primary figure on a screen. First used
+// on PropertiesListPage's portfolio net total (issue #29).
 function HeroCard({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
