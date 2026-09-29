@@ -13,7 +13,9 @@ export function CapturePage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">{t("capture.title")}</CardTitle>
+        <CardTitle className="text-title font-semibold text-ink">
+          {t("capture.title")}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ExpenseForm

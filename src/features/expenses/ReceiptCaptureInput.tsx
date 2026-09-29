@@ -38,7 +38,9 @@ export function ReceiptCaptureInput({
   const { t } = useTranslation();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
-  const [lastSource, setLastSource] = useState<"camera" | "upload" | null>(null);
+  const [lastSource, setLastSource] = useState<"camera" | "upload" | null>(
+    null,
+  );
   const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleCameraChange(event: ChangeEvent<HTMLInputElement>) {
@@ -126,8 +128,8 @@ export function ReceiptCaptureInput({
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{file.name}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="truncate text-body-strong text-ink">{file.name}</p>
+            <p className="text-caption text-muted-foreground">
               {kind.toUpperCase()} · {formatFileSize(file.size)}
             </p>
           </div>
@@ -168,7 +170,7 @@ export function ReceiptCaptureInput({
           disabled={disabled}
           onClick={() => cameraInputRef.current?.click()}
         >
-          <Camera className="size-4" />
+          <Camera className="size-5" strokeWidth={1.75} />
           {t("expenseForm.takePhotoButton")}
         </Button>
         <Button
@@ -178,15 +180,15 @@ export function ReceiptCaptureInput({
           disabled={disabled}
           onClick={() => uploadInputRef.current?.click()}
         >
-          <Upload className="size-4" />
+          <Upload className="size-5" strokeWidth={1.75} />
           {t("expenseForm.uploadFileButton")}
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-caption text-muted-foreground">
         {t("expenseForm.attachmentHelperText")}
       </p>
       {validationError && (
-        <p className="text-sm text-destructive">{validationError}</p>
+        <p className="text-caption text-red-text">{validationError}</p>
       )}
     </div>
   );

@@ -30,9 +30,7 @@ import {
   createExpenseInputSchema,
 } from "./schema";
 
-export type ExpenseSaveTarget =
-  | { propertyId: string }
-  | { buildingId: string };
+export type ExpenseSaveTarget = { propertyId: string } | { buildingId: string };
 
 interface ExpenseFormProps {
   initialPropertyId?: string;
@@ -219,10 +217,15 @@ export function ExpenseForm({
         },
         {
           onSuccess: (expense) =>
-            onSaved({ buildingId: targetBuilding.buildingId }, expense.expenseId),
+            onSaved(
+              { buildingId: targetBuilding.buildingId },
+              expense.expenseId,
+            ),
           onError: (err) =>
             setFormError(
-              err instanceof Error ? err.message : t("errors.saveExpenseFailed"),
+              err instanceof Error
+                ? err.message
+                : t("errors.saveExpenseFailed"),
             ),
         },
       );
@@ -289,7 +292,7 @@ export function ExpenseForm({
         // Just a clear, non-interactive confirmation of what it's for.
         <div className="flex flex-col gap-1.5">
           <Label>{t("expenseForm.buildingLabel")}</Label>
-          <p className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-sm font-medium">
+          <p className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-body font-medium text-ink">
             {targetBuilding?.name ?? t("common.loading")}
           </p>
         </div>
@@ -330,10 +333,10 @@ export function ExpenseForm({
                   type="button"
                   onClick={() => setScope("unit")}
                   className={cn(
-                    "rounded-lg border p-3 text-left text-sm font-medium",
+                    "min-h-11 rounded-lg border p-3 text-left text-body font-medium",
                     scope === "unit"
-                      ? "border-primary bg-primary/5"
-                      : "border-border",
+                      ? "border-transparent bg-card text-ink"
+                      : "border-line bg-page text-muted-foreground",
                   )}
                 >
                   {t("expenseForm.scopeUnit")}
@@ -342,10 +345,10 @@ export function ExpenseForm({
                   type="button"
                   onClick={() => setScope("building")}
                   className={cn(
-                    "rounded-lg border p-3 text-left text-sm font-medium",
+                    "min-h-11 rounded-lg border p-3 text-left text-body font-medium",
                     scope === "building"
-                      ? "border-primary bg-primary/5"
-                      : "border-border",
+                      ? "border-transparent bg-card text-ink"
+                      : "border-line bg-page text-muted-foreground",
                   )}
                 >
                   {t("expenseForm.scopeBuilding")}
@@ -366,7 +369,7 @@ export function ExpenseForm({
           disabled={isBusy}
         />
         {isRunningOcr && (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <p className="flex items-center gap-2 text-caption text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
             {t("expenseForm.readingReceipt")}
           </p>
@@ -442,7 +445,7 @@ export function ExpenseForm({
         </Alert>
       )}
 
-      <Button type="submit" className="w-full" disabled={isBusy}>
+      <Button type="submit" size="full" disabled={isBusy}>
         {createExpense.isPending
           ? t("expenseForm.loggingButton")
           : t("expenseForm.logButton")}
