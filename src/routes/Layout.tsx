@@ -11,7 +11,7 @@ export function Layout() {
         <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
           <Link to="/properties" className="flex items-center gap-2">
             <StampIcon />
-            <span className="text-[13px] font-medium text-foreground">
+            <span className="text-caption font-medium text-foreground">
               Property expense tracker
             </span>
           </Link>
