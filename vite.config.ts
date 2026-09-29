@@ -43,9 +43,7 @@ export default defineConfig(({ command }) => ({
         short_name: "Expense Tracker",
         description: "Capture and track rental property expenses and receipts.",
         // Ink design system, issue #25 — matches --ink/--page in
-        // src/index.css. App icon left as-is (out of scope for Phase 1;
-        // still uses the old ledger-green stamp mark, flagged in the
-        // report).
+        // src/index.css.
         theme_color: "#12233A",
         background_color: "#FFFFFF",
         display: "standalone",
@@ -53,14 +51,23 @@ export default defineConfig(({ command }) => ({
         // against `base` — a leading slash would point at the domain root
         // instead of the /propertytracker/ subpath.
         start_url: "./",
+        // Portal Monogram (issue #34) — source at
+        // assets-src/portal-monogram.svg, generated to these sizes with
+        // a scratch Node+sharp script (not a project dependency). Drawn
+        // with an inner safe zone, so "any maskable" is accurate for
+        // both sizes rather than needing a separate maskable-only asset.
         icons: [
-          { src: "icon-192.png", sizes: "192x192", type: "image/png" },
-          { src: "icon-512.png", sizes: "512x512", type: "image/png" },
+          {
+            src: "icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable",
+          },
           {
             src: "icon-512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "maskable",
+            purpose: "any maskable",
           },
         ],
       },
